@@ -1,6 +1,6 @@
 # Turing RK1 Ansible Cluster
 
-[![CI](https://github.com/jfreed-dev/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/jfreed-dev/turing-ansible-cluster/actions/workflows/ci.yml)
+[![CI](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
@@ -245,7 +245,7 @@ GitHub Actions runs on every push and PR:
 ## Related Repositories
 
 - [terraform-provider-turingpi](https://github.com/jfreed-dev/terraform-provider-turingpi) - Terraform BMC provider
-- [turing-rk1-cluster](https://github.com/jfreed-dev/turing-rk1-cluster) - Original Talos Linux cluster
+- [turing-rk1-cluster](https://github.com/freed-dev-llc/turing-rk1-cluster) - Original Talos Linux cluster
 
 ## License
 
