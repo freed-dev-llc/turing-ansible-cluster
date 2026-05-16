@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     name: Ansible Lint
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
 
   syntax-check:
     name: Syntax Check
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,7 +75,7 @@ jobs:
 
   terraform-validate:
     name: Terraform Validate
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,7 +98,7 @@ jobs:
 
   molecule:
     name: Molecule Tests
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux]
     strategy:
       fail-fast: false
       matrix:
