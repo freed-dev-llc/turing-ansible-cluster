@@ -19,10 +19,7 @@
 - name: Ensure kernel modules load on boot
   ansible.builtin.copy:
     dest: /etc/modules-load.d/k3s.conf
-    content: |
-      {% for mod in base_kernel_modules | default([]) %}
-      {{ mod }}
-      {% endfor %}
+    content: "{{ (base_kernel_modules | default([])) | join('\n') }}\n"
     mode: "0644"
 
 - name: Write sysctl settings file
