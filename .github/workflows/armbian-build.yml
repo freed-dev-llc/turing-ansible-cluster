@@ -53,7 +53,7 @@ jobs:
     name: Build Armbian
     needs: check-version
     if: needs.check-version.outputs.build_needed == 'true'
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     timeout-minutes: 180
 
     steps:
