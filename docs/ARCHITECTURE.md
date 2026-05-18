@@ -17,6 +17,7 @@ This document provides visual architecture documentation for the Turing Ansible 
 ## System Overview
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "Operator Workstation"
         TF[Terraform CLI]
@@ -77,6 +78,7 @@ graph TB
 ## Network Topology
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "External Network - 10.10.88.0/24"
         Router[Router/Gateway]
@@ -153,6 +155,7 @@ graph TB
 ## Deployment Pipeline
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 sequenceDiagram
     participant Op as Operator
     participant TF as Terraform
@@ -212,6 +215,7 @@ sequenceDiagram
 ## Component Interaction
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "Terraform Layer"
         TFMain[terraform/environments/server/main.tf]
@@ -277,6 +281,7 @@ graph TB
 ## Storage Architecture
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "Node 1 (Control Plane)"
         N1_eMMC[eMMC 64GB<br/>System Only]
@@ -348,6 +353,7 @@ graph TB
 ## Kubernetes Stack
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "kube-system"
         CoreDNS[CoreDNS]
@@ -412,6 +418,7 @@ graph TB
 ## NPU Integration
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "RK3588 SoC"
         CPU[Cortex-A76 x4<br/>Cortex-A55 x4]
@@ -461,6 +468,7 @@ graph TB
 ## Inventory Structure
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "Inventory Targets"
         Server[inventories/server/<br/>Turing Pi RK1]
