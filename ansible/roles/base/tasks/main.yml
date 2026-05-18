@@ -24,6 +24,7 @@
       {{ mod }}
       {% endfor %}
     mode: "0644"
+  when: (base_kernel_modules | default([])) | length > 0
 
 - name: Write sysctl settings file
   ansible.builtin.template:
