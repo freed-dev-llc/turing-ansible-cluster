@@ -1,6 +1,6 @@
 # Turing RK1 Ansible Cluster
 
-[![CI](https://github.com/jfreed-dev/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/jfreed-dev/turing-ansible-cluster/actions/workflows/ci.yml)
+[![CI](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
