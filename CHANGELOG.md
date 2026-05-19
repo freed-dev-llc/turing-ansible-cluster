@@ -7,11 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `ansible/inventories/server/hosts.yml.example` k3s_version bumped from v1.31.3 to v1.31.4+k3s1 (pass-5 missed this template file; live `hosts.yml` was already on v1.31.4).
+
+### Removed
+
+- Dead `rknn_version: "2.3.2"` variable from `ansible/inventories/server/hosts.yml` + `.example`. The role at `ansible/roles/rknn/tasks/main.yml` clones HEAD of `airockchip/rknn-llm`; this variable was never read. INSTALL.md and ARCHITECTURE.md correctly cite v1.2.1.
+
 ## [1.4.0] - 2026-05-19
+
+> **Scope note:** This entry was originally written to cover PRs #7–#12 (today's pre-release cleanup) but the full v1.3.6 → v1.4.0 commit range contains ~36 commits of un-changelogged work that accumulated on `main` between 2025-12-27 (v1.3.6) and 2026-05-19 (this release). The list below has since been backfilled to reflect the full scope; the commits cited as `(commit XXX)` are the source-of-truth merges that introduced the change.
+
+### Added
+
+- **Pre-commit hooks + Ansible Vault tooling + Molecule tests** (`4777527`). The repo now has `.pre-commit-config.yaml`, an opt-in vault workflow (see `docs/VAULT-SETUP.md`), and Molecule scenarios for `base` and `k3s_server` roles.
+- **Architecture documentation with Mermaid diagrams** (`fe3f1e4`, `f64e26b`, refined in #8 to use the `neutral` theme).
+- **`docs/ARMBIAN-BUILD.md`** + nightly `Build Armbian Image` GitHub Actions workflow that pushes to the `armbian-builds` R2 bucket under `turing-rk1/armbian/<version>/`.
+- **SBOM generation in CI** (`e8a5086`) + Dependabot auto-merge for minor/patch updates (`c5bd023`).
+- **GitHub Actions self-hosted runner migration** (`ac9caa8`, `3372fda`) — workflows now use `runs-on: [self-hosted, linux]` against the Spark fleet.
+- **YAML-format issue templates** replacing the previous markdown templates (`b837332`, `1159338`, `860f1ec`, `37915ba`, `2c40ebe`).
+- `CODE_OF_CONDUCT.md` (Contributor Covenant, copied from sister repo) (#11).
+- `.editorconfig` for cross-editor formatting consistency (#11).
 
 ### Changed
 
-- **License: MIT → Apache 2.0.** Repository LICENSE was relicensed; this release updates the README badge + License section to match (#9).
+- **License: MIT → Apache 2.0** at the LICENSE file level (`ddc0ec7`) + README badge + License section updated to match (#9).
+- **Org migration: `jfreed-dev` → `freed-dev-llc`.** Repo was silently transferred; this release fixes all surviving `jfreed-dev` references in README + 21 CHANGELOG compare-links + docs (#9). GitHub URL redirects still work but the canonical org is now `freed-dev-llc`.
+- **K3s version: v1.31.3 → v1.31.4+k3s1** across inventory (first bumped in `be9d9a6`), docs, the `k3s_server` role's default, and Molecule tests (#9, this release).
+- **Monitoring stack tweaks** — Aria scrape config added, Grafana LoadBalancer IP wired up, `node-exporter` disabled (`9ef10f6`). README + ARCHITECTURE.md updated accordingly (#9).
+- **Armbian image storage moved** under the `armbian/` subdirectory on R2 (`3151f1d`); metadata files at `turing-rk1/armbian/<version>/` rather than at the root.
+- **Armbian metadata bumped to 26.05.0-trunk in the local images.json** (`5fbd3e6`). Note: the live R2 unified manifest at `armbian-builds.techki.to/turing-rk1/images.json` may lag — the publish step pushes per-build but the unified file is refreshed only when a new build actually runs.
+- Architecture docs (`docs/ARCHITECTURE.md`) — storage diagram redrawn with NVMe on all 4 nodes (matches inventory `has_nvme: true` since v1.1.4); `Node Exporter` removed from monitoring stack; `inventories/vm/` + `inventories/laptop/` references removed (those inventories never existed) (#9).
+- Implementation guide (`docs/IMPLEMENTATION.md`) — deleted Phase 7 (VM Cluster Deployment) and Phase 8 (Laptop/Workstation Setup); both referenced playbooks (`vm-provision.yml`, `workstation.yml`) and inventories that don't exist in this repo (#9, this release). Phase 0.4 firmware download switched from a stale Ubuntu 22.04 URL to the Armbian image published nightly to R2 — resolved dynamically from `images.json` (#9). Target Environments table trimmed to just Server; summary table dropped Phase 7/8 and the orphan "Total (VM)" row.
+- Hardcoded `~/Code/turing-ansible-cluster` paths in INSTALL.md + IMPLEMENTATION.md replaced with `$REPO_ROOT` (#10).
+- Hardcoded `~/Code/turing-rk1-cluster` (sibling repo) path in IMPLEMENTATION.md updated to `~/Repos/turing-rk1-cluster` (this release).
+- `docs/ARCHITECTURE.md` `rknn-llm` runtime label corrected from v1.2.3 → v1.2.1 to match INSTALL.md (the role clones HEAD, INSTALL.md is canonical) (#10).
+- `docs/VAULT-SETUP.md` clarified that vault is opt-in — the default inventory keeps secrets in plain text (gitignored) (#10).
+- Mermaid diagrams in `docs/ARCHITECTURE.md` locked to the `neutral` theme for cross-mode legibility (#8).
+- README badge owner corrected (`jfreed-dev` → `freed-dev-llc`) (#3).
+
+### Fixed
+
+- **Armbian build workflow** `no_check_bucket = true` for bucket-scoped R2 token (#5); pinned to `ubuntu-latest` to avoid Self-Hosted ARM Docker breakage (#4).
+- **`base` role** — skip `modules-load.d` write when `base_kernel_modules` is empty (#6).
+- **Molecule** — Ansible 2.18+ compatibility (`b52462a`); `ALLOW_BROKEN_CONDITIONALS` env var work (`6007dad`, `d5fd87b`).
+- **CI workflow failures** unrelated to this repo (`b3c6313`).
+- **`maximize-build-space` action** pinned to commit SHA for supply-chain safety (`3694891`).
+- Node20-deprecated GitHub Actions bumped ahead of the 2026-06-02 forced upgrade (#7).
+
+### Compatibility
+
+The K3s version bump (v1.31.3 → v1.31.4+k3s1) is a patch-level upgrade and is non-breaking. The role-level default change matches what the live inventory has been overriding to since `be9d9a6`; no operator action required. The Apache 2.0 relicense (from MIT) is intentionally permissive — no action required for consumers.
 - **Org migration: `jfreed-dev` → `freed-dev-llc`.** Repo was silently transferred; this release fixes all surviving `jfreed-dev` references in README + 21 CHANGELOG compare-links + docs (#9). GitHub URL redirects still work but the canonical org is now `freed-dev-llc`.
 - **K3s version: v1.31.3 → v1.31.4+k3s1** across inventory, docs, and the `k3s_server` role's default + Molecule tests (#9, this release).
 - **Ansible role `k3s_server`** default `k3s_version` bumped to match live cluster (was lagging by one patch).
