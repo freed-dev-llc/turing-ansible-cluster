@@ -627,7 +627,7 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/site.yml
 ssh root@10.10.88.73
 
 # Install K3s server
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" sh -s - server \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4+k3s1" sh -s - server \
   --cluster-cidr=10.244.0.0/16 \
   --service-cidr=10.96.0.0/12 \
   --disable=traefik \
@@ -644,7 +644,7 @@ cat /var/lib/rancher/k3s/server/node-token
 ssh root@10.10.88.74  # Repeat for .75, .76
 
 # Install K3s agent
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.3+k3s1" \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4+k3s1" \
   K3S_URL="https://10.10.88.73:6443" \
   K3S_TOKEN="<token from control plane>" \
   sh -s - agent
@@ -658,10 +658,10 @@ kubectl get nodes -o wide
 
 # Expected:
 # NAME         STATUS   ROLES                  AGE   VERSION
-# node1   Ready    control-plane,master   5m    v1.31.3+k3s1
-# node2    Ready    <none>                 3m    v1.31.3+k3s1
-# node3    Ready    <none>                 3m    v1.31.3+k3s1
-# node4    Ready    <none>                 3m    v1.31.3+k3s1
+# node1   Ready    control-plane,master   5m    v1.31.4+k3s1
+# node2    Ready    <none>                 3m    v1.31.4+k3s1
+# node3    Ready    <none>                 3m    v1.31.4+k3s1
+# node4    Ready    <none>                 3m    v1.31.4+k3s1
 ```
 
 ---

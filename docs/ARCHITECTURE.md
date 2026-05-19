@@ -36,7 +36,7 @@ graph TB
     end
 
     subgraph "Kubernetes Cluster"
-        K3S[K3s v1.31.3]
+        K3S[K3s v1.31.4]
         Flannel[Flannel CNI<br/>10.244.0.0/16]
         MetalLB[MetalLB<br/>10.10.88.80-89]
         Longhorn[Longhorn Storage]
@@ -284,8 +284,9 @@ graph TB
 %%{init: {'theme': 'neutral'}}%%
 graph TB
     subgraph "Node 1 (Control Plane)"
-        N1_eMMC[eMMC 64GB<br/>System Only]
-        N1_Boot[Armbian Boot]
+        N1_eMMC[eMMC 64GB<br/>System]
+        N1_NVMe[NVMe 512GB<br/>Data]
+        N1_Longhorn[Longhorn Volume]
     end
 
     subgraph "Node 2 (Worker)"
@@ -317,7 +318,8 @@ graph TB
         SC[StorageClass: longhorn]
     end
 
-    N1_eMMC --> N1_Boot
+    N1_eMMC --> N1_NVMe
+    N1_NVMe --> N1_Longhorn
 
     N2_eMMC --> N2_NVMe
     N2_NVMe --> N2_Longhorn
@@ -328,6 +330,7 @@ graph TB
     N4_eMMC --> N4_NVMe
     N4_NVMe --> N4_Longhorn
 
+    N1_Longhorn --> Manager
     N2_Longhorn --> Manager
     N3_Longhorn --> Manager
     N4_Longhorn --> Manager
@@ -343,7 +346,7 @@ graph TB
 
 | Node | eMMC | NVMe | Longhorn Mount |
 |------|------|------|----------------|
-| Node 1 | 64GB (System) | - | - |
+| Node 1 | 64GB (System) | 512GB | /var/lib/longhorn |
 | Node 2 | 64GB (System) | 512GB | /var/lib/longhorn |
 | Node 3 | 64GB (System) | 512GB | /var/lib/longhorn |
 | Node 4 | 64GB (System) | 512GB | /var/lib/longhorn |
@@ -384,7 +387,6 @@ graph TB
         Prometheus[Prometheus]
         Grafana[Grafana]
         Alertmanager[Alertmanager]
-        NodeExporter[Node Exporter]
     end
 
     subgraph "portainer"
@@ -408,7 +410,6 @@ graph TB
     LHManager --> LHEngine
     LHManager --> LHDriver
 
-    Prometheus --> NodeExporter
     Prometheus --> Grafana
     Prometheus --> Alertmanager
 ```
@@ -472,8 +473,6 @@ graph TB
 graph TB
     subgraph "Inventory Targets"
         Server[inventories/server/<br/>Turing Pi RK1]
-        VM[inventories/vm/<br/>Virtual Machines]
-        Laptop[inventories/laptop/<br/>PopOS Workstation]
     end
 
     subgraph "Server Inventory"
@@ -531,14 +530,13 @@ turing-ansible-cluster/
 │   │   ├── portainer/        # Management UI
 │   │   └── rknn/             # NPU runtime
 │   ├── inventories/
-│   │   ├── server/           # Production cluster
-│   │   ├── vm/               # Test VMs
-│   │   └── laptop/           # Workstation
+│   │   └── server/           # Production cluster
 │   └── files/helm-values/    # Helm chart values
 └── docs/
     ├── ARCHITECTURE.md       # This file
     ├── IMPLEMENTATION.md     # Deployment procedures
-    ├── NETWORKING.md         # Network configuration
-    ├── STORAGE.md            # Storage setup
-    └── MONITORING.md         # Observability
+    ├── ARMBIAN-BUILD.md      # Armbian image build pipeline
+    ├── NPU-API.md            # NPU runtime + API
+    ├── NVME-MIGRATION.md     # NVMe migration plan
+    └── VAULT-SETUP.md        # Ansible Vault notes
 ```
