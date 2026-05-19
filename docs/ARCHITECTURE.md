@@ -460,7 +460,7 @@ graph TB
 |-----------|---------|
 | Driver | rknpu v0.9.8+ (vendor kernel) |
 | Device | /dev/dri/renderD129 |
-| Runtime | rknn-llm v1.2.3 |
+| Runtime | rknn-llm v1.2.1 |
 | API Port | 8080 |
 | CPU Cores | 4-7 (big cores for NPU) |
 

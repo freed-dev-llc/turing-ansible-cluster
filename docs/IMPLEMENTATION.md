@@ -27,7 +27,7 @@ terraform --version  # >= 1.5
 ansible --version    # >= 2.15
 
 # Install Ansible collections
-cd ~/Code/turing-ansible-cluster/ansible
+cd $REPO_ROOT/ansible
 ansible-galaxy install -r requirements.yml
 ```
 
@@ -76,7 +76,7 @@ xz -dk ~/Downloads/armbian-turing-rk1.img.xz
 ### 1.1 Configure Terraform
 
 ```bash
-cd ~/Code/turing-ansible-cluster/terraform/environments/server
+cd $REPO_ROOT/terraform/environments/server
 
 # Set BMC credentials
 export TURINGPI_USERNAME=root
@@ -131,7 +131,7 @@ sudo netplan apply
 ### 2.1 Verify Connectivity
 
 ```bash
-cd ~/Code/turing-ansible-cluster/ansible
+cd $REPO_ROOT/ansible
 
 # Test SSH access
 ansible -i inventories/server/hosts.yml all -m ping
@@ -184,7 +184,7 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/kubernetes.yml
 ### 3.2 Verify Cluster
 
 ```bash
-export KUBECONFIG=~/Code/turing-ansible-cluster/ansible/kubeconfig
+export KUBECONFIG=$REPO_ROOT/ansible/kubeconfig
 
 kubectl get nodes -o wide
 # Expected: 4 nodes in Ready state
@@ -359,7 +359,7 @@ kubectl delete pvc test-pvc
 ### Rollback to Talos
 
 ```bash
-cd ~/Code/turing-ansible-cluster/terraform/environments/server
+cd $REPO_ROOT/terraform/environments/server
 
 # Flash Talos image instead
 terraform apply \

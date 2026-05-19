@@ -609,7 +609,7 @@ cat /sys/kernel/debug/rknpu/load     # Core utilization
 ### Using Ansible (Recommended)
 
 ```bash
-cd ~/Code/turing-ansible-cluster/ansible
+cd $REPO_ROOT/ansible
 
 # Setup secrets
 ./scripts/setup-secrets.sh
