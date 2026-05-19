@@ -9,8 +9,6 @@ This plan covers the complete deployment of a K3s Kubernetes cluster on Turing R
 | Environment | Nodes | Use Case |
 |-------------|-------|----------|
 | **Server** | 4x RK1 (10.10.88.73-76) | Production with NPU |
-| **VM** | 3x VMs (192.168.122.x) | Testing |
-| **Laptop** | 1x PopOS | Development workstation |
 
 ---
 
@@ -364,7 +362,7 @@ cd $REPO_ROOT/terraform/environments/server
 # Flash Talos image instead
 terraform apply \
   -var="flash_nodes=true" \
-  -var="firmware_path=$HOME/Code/turing-rk1-cluster/images/latest/metal-arm64.raw" \
+  -var="firmware_path=$HOME/Repos/turing-rk1-cluster/images/latest/metal-arm64.raw" \
   -var="boot_pattern=machine is running and ready"
 ```
 
@@ -423,10 +421,7 @@ scp ubuntu@10.10.88.73:/tmp/k3s-backup.tar.gz ~/backups/
 | 4 | Addon Deployment | 30 min |
 | 5 | NPU Setup (optional) | 20 min |
 | 6 | Verification | 15 min |
-| 7 | VM Cluster (Pop!_OS) | 45 min |
-| 8 | Laptop Setup | 15 min |
-| **Total (Server)** | | **3-5 hours** |
-| **Total (VM)** | | **1-2 hours** |
+| **Total** | | **3-5 hours** |
 
 ---
 

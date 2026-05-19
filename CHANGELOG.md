@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.4.0] - 2026-05-19
+
+### Changed
+
+- **License: MIT → Apache 2.0.** Repository LICENSE was relicensed; this release updates the README badge + License section to match (#9).
+- **Org migration: `jfreed-dev` → `freed-dev-llc`.** Repo was silently transferred; this release fixes all surviving `jfreed-dev` references in README + 21 CHANGELOG compare-links + docs (#9). GitHub URL redirects still work but the canonical org is now `freed-dev-llc`.
+- **K3s version: v1.31.3 → v1.31.4+k3s1** across inventory, docs, and the `k3s_server` role's default + Molecule tests (#9, this release).
+- **Ansible role `k3s_server`** default `k3s_version` bumped to match live cluster (was lagging by one patch).
+- Architecture docs (`docs/ARCHITECTURE.md`) — storage diagram redrawn with NVMe on all 4 nodes (matches inventory `has_nvme: true` since v1.1.4); `Node Exporter` removed from monitoring stack (disabled in `9ef10f6`); `inventories/vm/` + `inventories/laptop/` references removed (those inventories never existed) (#9).
+- Implementation guide (`docs/IMPLEMENTATION.md`) — deleted Phase 7 (VM Cluster Deployment) and Phase 8 (Laptop/Workstation Setup); both referenced playbooks (`vm-provision.yml`, `workstation.yml`) and inventories that don't exist in this repo (#9, this release). Phase 0.4 firmware download switched from a stale Ubuntu 22.04 URL to the Armbian image published nightly to R2 — resolved dynamically from `images.json` (#9). Target Environments table trimmed to just Server; summary table dropped Phase 7/8 and the orphan "Total (VM)" row.
+- Hardcoded `~/Code/turing-ansible-cluster` paths in INSTALL.md + IMPLEMENTATION.md replaced with `$REPO_ROOT` (#10).
+- Hardcoded `~/Code/turing-rk1-cluster` (sibling repo) path in IMPLEMENTATION.md updated to `~/Repos/turing-rk1-cluster` (this release).
+- `docs/ARCHITECTURE.md` `rknn-llm` runtime label corrected from v1.2.3 → v1.2.1 to match INSTALL.md (the role clones HEAD, INSTALL.md is canonical) (#10).
+- `docs/VAULT-SETUP.md` clarified that vault is opt-in — the default inventory keeps secrets in plain text (gitignored) (#10).
+- Mermaid diagrams in `docs/ARCHITECTURE.md` locked to the `neutral` theme for cross-mode legibility (#8).
+
+### Added
+
+- `CODE_OF_CONDUCT.md` (Contributor Covenant, copied from sister repo) (#11).
+- `.editorconfig` for cross-editor formatting consistency (#11).
+
+### Fixed
+
+- Node20-deprecated GitHub Actions bumped ahead of the 2026-06-02 forced upgrade (#7).
+
+### Compatibility
+
+The K3s version bump (v1.31.3 → v1.31.4+k3s1) is a patch-level upgrade and is non-breaking. The role-level default change matches what the live inventory has been overriding to since `be9d9a6`; no operator action required.
+
 ## [1.3.6] - 2025-12-27
 
 ### Fixed
@@ -329,6 +360,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive installation guide (INSTALL.md)
 - Implementation documentation (docs/IMPLEMENTATION.md)
 
+[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.6...v1.4.0
 [1.3.6]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.4...v1.3.5
 [1.3.4]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.3...v1.3.4
