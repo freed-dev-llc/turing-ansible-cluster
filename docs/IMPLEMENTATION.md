@@ -52,13 +52,21 @@ done
 
 ### 0.4 Firmware Image Download
 
+Use the latest Armbian image published by this repo's nightly build to the R2
+bucket (see `docs/ARMBIAN-BUILD.md`). Read the version from the unified
+manifest so the URL doesn't go stale:
+
 ```bash
-# Download Ubuntu 22.04 for RK1 from Turing Pi
-wget -O ~/Downloads/ubuntu-22.04-rk1.img.xz \
-  https://firmware.turingpi.com/turing-rk1/ubuntu/ubuntu-22.04-server.img.xz
+# Resolve the latest Armbian download URL from the manifest
+URL=$(curl -sf https://armbian-builds.techki.to/turing-rk1/images.json \
+        | jq -r '.armbian.latest.download_url')
+echo "$URL"
+
+# Download
+wget -O ~/Downloads/armbian-turing-rk1.img.xz "$URL"
 
 # Extract (optional - Terraform can handle .xz)
-xz -dk ~/Downloads/ubuntu-22.04-rk1.img.xz
+xz -dk ~/Downloads/armbian-turing-rk1.img.xz
 ```
 
 ---
@@ -87,12 +95,12 @@ terraform init
 # Plan the flash operation
 terraform plan \
   -var="flash_nodes=true" \
-  -var="firmware_path=$HOME/Downloads/ubuntu-22.04-rk1.img"
+  -var="firmware_path=$HOME/Downloads/armbian-turing-rk1.img"
 
 # Execute flash (WARNING: destructive, ~30-60 min per node)
 terraform apply \
   -var="flash_nodes=true" \
-  -var="firmware_path=$HOME/Downloads/ubuntu-22.04-rk1.img"
+  -var="firmware_path=$HOME/Downloads/armbian-turing-rk1.img"
 ```
 
 ### 1.3 Verify Boot
@@ -162,7 +170,7 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/kubernetes.yml
 **Execution Order:**
 
 1. **Control Plane (node1)** - serial execution
-   - Install K3s server v1.31.3+k3s1
+   - Install K3s server v1.31.4+k3s1
    - Configure: Pod CIDR 10.244.0.0/16, Service CIDR 10.96.0.0/12
    - Disable traefik and servicelb (using MetalLB + NGINX instead)
    - Generate cluster token
@@ -335,102 +343,6 @@ kubectl get pvc test-pvc
 # Cleanup
 kubectl delete pvc test-pvc
 ```
-
----
-
-## Phase 7: VM Cluster Deployment (Pop!_OS)
-
-### 7.1 Create VMs
-
-Create 3 Pop!_OS VMs with the following specifications:
-
-| VM | Hostname | IP | vCPU | RAM | Disk |
-|----|----------|-----|------|-----|------|
-| vm-cp1 | popos-k3s-cp1 | 192.168.122.10 | 4 | 8GB | 50GB |
-| vm-w1 | popos-k3s-w1 | 192.168.122.11 | 4 | 8GB | 50GB |
-| vm-w2 | popos-k3s-w2 | 192.168.122.12 | 4 | 8GB | 50GB |
-
-**Pop!_OS Installation Settings:**
-
-- Use Pop!_OS 24.04 LTS ISO
-- No drive encryption
-- Create initial user (any name - will be reconfigured)
-- Set static IPs per table above
-
-### 7.2 Provision VMs
-
-```bash
-cd ~/Code/turing-ansible-cluster/ansible
-
-# First run - use password authentication
-ansible-playbook -i inventories/vm/hosts.yml playbooks/vm-provision.yml -k --ask-become-pass
-```
-
-**Actions Performed:**
-
-- Creates user `jon` with admin privileges
-- Sets random passwords for `root` and `jon`
-- Displays passwords and saves to `credentials/vm-credentials.txt`
-- Sets hostnames per Pop!_OS best practices
-- Installs KVM guest drivers (qemu-guest-agent, spice-vdagent)
-- Configures SSH keys for passwordless access
-- Disables swap for Kubernetes
-- Enables automatic security updates
-
-### 7.3 Deploy K3s to VMs
-
-```bash
-# Bootstrap (now passwordless SSH works)
-ansible-playbook -i inventories/vm/hosts.yml playbooks/bootstrap.yml
-
-# Full cluster deployment
-ansible-playbook -i inventories/vm/hosts.yml playbooks/site.yml
-```
-
-### 7.4 Access VM Cluster
-
-```bash
-export KUBECONFIG=~/Code/turing-ansible-cluster/ansible/kubeconfig
-
-# Add to /etc/hosts
-echo "192.168.122.80  grafana.vm.local prometheus.vm.local longhorn.vm.local" | sudo tee -a /etc/hosts
-
-kubectl get nodes
-```
-
-**Credentials Location:** `ansible/credentials/vm-credentials.txt` (git-ignored)
-
----
-
-## Phase 8: Laptop/Workstation Setup
-
-### 8.1 Deploy Workstation Playbook
-
-```bash
-cd ~/Code/turing-ansible-cluster/ansible
-
-ansible-playbook -i inventories/laptop/hosts.yml playbooks/workstation.yml
-```
-
-**Installed Components:**
-
-- Development packages (git, curl, vim, htop, tmux, jq)
-- Docker CE
-- kubectl
-- Helm
-- Dotfiles from laptop-configs-popos (optional)
-
-### 8.2 Optional: Join Laptop to Cluster
-
-Edit `inventories/laptop/hosts.yml`:
-
-```yaml
-join_cluster: true
-k3s_server_url: "https://10.10.88.73:6443"
-k3s_token: "<token from control plane>"
-```
-
-Then re-run playbook.
 
 ---
 
