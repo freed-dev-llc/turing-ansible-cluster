@@ -1,0 +1,35 @@
+name: Auto-approve owner PRs
+
+# This repo has a single code owner (@jfreed-dev), who cannot approve their own
+# pull requests. To keep the required-review gate on `main` satisfiable, this
+# workflow auto-approves PRs opened by the owner. PRs from any other author are
+# left untouched and still require a normal review.
+#
+# Requires the repo Actions setting "Allow GitHub Actions to create and approve
+# pull requests" (can_approve_pull_request_reviews) to be enabled.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  approve:
+    if: >-
+      github.event.pull_request.user.login == 'jfreed-dev' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve owner PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              body: 'Auto-approved: PR by the repository owner (sole code owner cannot self-approve).',
+            });
