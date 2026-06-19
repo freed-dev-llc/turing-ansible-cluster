@@ -2,8 +2,8 @@
 
 This document explains how to configure Ansible Vault for secure secrets management in this repository.
 
-> **Note:** Vault is opt-in. The default `inventories/server/hosts.yml` keeps
-> secrets in plain text (gitignored alongside `.example`). The steps below
+> **Note:** Vault is opt-in. The default `secrets/server.yml` keeps
+> secrets in plain text (gitignored alongside its `.example`). The steps below
 > show how to switch to a vault-encrypted workflow if you want that — it's
 > not required for the playbooks to run.
 

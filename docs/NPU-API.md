@@ -53,7 +53,7 @@ curl http://10.10.88.73:8080/models
 
 Response:
 ```json
-{"models": ["DeepSeek-R1-1.5B", "tinyllama-1.1b", "Qwen-1_8B-Chat"]}
+{"models": ["DeepSeek-R1-1.5B"]}
 ```
 
 ### GET /current_model - Show Loaded Model
@@ -340,11 +340,11 @@ To change the port:
 ```bash
 # Edit defaults in Ansible
 # ansible/roles/rknn/defaults/main.yml
-rkllama_service_port: 8081
+rknn_service_port: 8081
 
-# Or edit service file directly
+# Or override the unit directly — the port is a --port CLI flag, not an env var
 sudo systemctl edit rkllama
-# Add: Environment="PORT=8081"
+# Add an ExecStart override under [Service] that repeats the command above with --port 8081
 sudo systemctl daemon-reload
 sudo systemctl restart rkllama
 ```
