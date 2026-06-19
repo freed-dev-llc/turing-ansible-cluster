@@ -182,7 +182,7 @@ cd ~/armbian-build
 ### Build Output
 
 ```
-~/armbian-build/output/images/Armbian-unofficial_26.02.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img
+~/armbian-build/output/images/Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img
 ```
 
 Build time: ~5-10 minutes (uses Docker, downloads cached packages)
@@ -200,7 +200,7 @@ export TPI_USERNAME=root
 export TPI_PASSWORD="your_bmc_password"
 
 # Flash node 1
-tpi flash --node 1 --image-path ~/Downloads/Armbian-unofficial_26.02.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img
+tpi flash --node 1 --image-path ~/Downloads/Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img
 
 # Power on after flash
 tpi power on --node 1
@@ -242,7 +242,7 @@ Reference: [Armbian Autoconfig Documentation](https://docs.armbian.com/User-Guid
 ```bash
 # Prepare image for node 1 with static IP
 sudo ./scripts/prepare-armbian-image.sh \
-  ~/Downloads/Armbian-unofficial_26.02.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img \
+  ~/Downloads/Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img \
   1
 
 # Or with custom settings
@@ -277,10 +277,10 @@ tpi power on
    - `PRESET_USER_SHELL` - Selects bash
    - `PRESET_NET_*` - Static IP configuration (if node specified)
    - `PRESET_LOCALE` / `PRESET_TIMEZONE` - System locale
-3. Creates `/root/provisioning.sh` for post-boot setup:
-   - Adds SSH authorized keys
-   - Sets hostname
-   - Configures /etc/hosts with cluster nodes
+3. Writes configuration directly into the mounted image:
+   - SSH authorized keys to `/root/.ssh/authorized_keys`
+   - Hostname to `/etc/hostname`
+   - Cluster node entries in `/etc/hosts`
 4. Unmounts the image
 
 ### Manual Autoconfig (Without Script)

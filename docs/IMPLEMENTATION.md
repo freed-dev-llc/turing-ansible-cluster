@@ -44,7 +44,7 @@ for ip in 10.10.88.{73..76}; do ping -c 1 $ip; done
 ```bash
 # Copy SSH key to nodes (after OS flash)
 for ip in 10.10.88.{73..76}; do
-  ssh-copy-id ubuntu@$ip
+  ssh-copy-id root@$ip
 done
 ```
 
@@ -106,7 +106,7 @@ terraform apply \
 ```bash
 # Terraform waits for boot_pattern="login:" on UART
 # Manual verification:
-ssh ubuntu@10.10.88.73  # Default password may be "ubuntu"
+ssh root@10.10.88.73
 ```
 
 ### 1.4 Post-Flash: Set Static IPs
@@ -144,8 +144,8 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/bootstrap.yml
 **Actions Performed:**
 
 - Update apt cache
-- Install base packages (curl, wget, git, htop, btop, vim, tmux, jq, open-iscsi, nfs-common)
-- Load kernel modules (iscsi_tcp, dm_crypt)
+- Install base packages (curl, wget, git, htop, btop, vim, tmux, jq, yq, unzip, python3-pip, open-iscsi, nfs-common, cryptsetup)
+- Load kernel modules (br_netfilter, overlay, iscsi_tcp)
 - Apply sysctl settings for Kubernetes networking
 - Set hostnames (node1, node2, node3, node4)
 - Configure /etc/hosts with cluster nodes
@@ -209,8 +209,8 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/addons.yml
 |-------|-------|-----------|---------|
 | 1 | MetalLB | metallb-system | L2 LoadBalancer (10.10.88.80-89) |
 | 2 | NGINX Ingress | ingress-nginx | Ingress controller at 10.10.88.80 |
-| 3 | Longhorn | longhorn-system | Distributed storage (2 replicas) |
-| 4 | Prometheus Stack | monitoring | Grafana, Prometheus, Alertmanager |
+| 3 | Prometheus Stack | monitoring | Grafana, Prometheus, Alertmanager |
+| 4 | Longhorn | longhorn-system | Distributed storage (2 replicas) |
 | 5 | Portainer | portainer | Agent connects to 10.10.81.81:9001 |
 
 ### 4.2 Verify Addons
@@ -404,8 +404,8 @@ ansible-playbook -i inventories/server/hosts.yml playbooks/addons.yml
 
 ```bash
 # Backup etcd (K3s stores in /var/lib/rancher/k3s/server/db/)
-ssh ubuntu@10.10.88.73 "sudo tar czf /tmp/k3s-backup.tar.gz /var/lib/rancher/k3s/server/db"
-scp ubuntu@10.10.88.73:/tmp/k3s-backup.tar.gz ~/backups/
+ssh root@10.10.88.73 "tar czf /tmp/k3s-backup.tar.gz /var/lib/rancher/k3s/server/db"
+scp root@10.10.88.73:/tmp/k3s-backup.tar.gz ~/backups/
 ```
 
 ---

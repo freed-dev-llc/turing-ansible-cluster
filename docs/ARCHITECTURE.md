@@ -204,8 +204,8 @@ sequenceDiagram
         Op->>Ansible: ansible-playbook addons.yml
         Ansible->>Nodes: Deploy MetalLB
         Ansible->>Nodes: Deploy NGINX Ingress
-        Ansible->>Nodes: Deploy Longhorn
         Ansible->>Nodes: Deploy Prometheus Stack
+        Ansible->>Nodes: Deploy Longhorn
         Ansible->>Nodes: Deploy Portainer Agent
     end
 ```
@@ -396,8 +396,8 @@ graph TB
     subgraph "Addon Dependencies"
         direction LR
         D1[MetalLB] --> D2[NGINX Ingress]
-        D2 --> D3[Longhorn]
-        D3 --> D4[Prometheus Stack]
+        D2 --> D3[Prometheus Stack]
+        D3 --> D4[Longhorn]
         D4 --> D5[Portainer]
     end
 
