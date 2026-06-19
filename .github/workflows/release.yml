@@ -19,17 +19,23 @@ jobs:
 
       - name: Generate changelog
         id: changelog
+        shell: bash
         run: |
-          # Get commits since last tag (or all commits if first release)
+          set -euo pipefail
+          # Commits since the previous tag, or all commits for the first release.
+          # describe HEAD^ so the tag being released isn't its own "previous tag";
+          # it fails (caught) at the root commit, falling back to the full log.
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -n "$PREV_TAG" ]; then
-            CHANGES=$(git log --pretty=format:"- %s" $PREV_TAG..HEAD)
+            CHANGES=$(git log --pretty=format:"- %s" "$PREV_TAG"..HEAD)
           else
             CHANGES=$(git log --pretty=format:"- %s")
           fi
-          echo "changes<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changes<<EOF"
+            echo "$CHANGES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
