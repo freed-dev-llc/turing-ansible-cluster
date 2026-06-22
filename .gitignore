@@ -4,7 +4,7 @@
 *.tfvars
 !*.tfvars.example
 .terraform/
-.terraform.lock.hcl
+# .terraform.lock.hcl is intentionally committed to pin provider versions/checksums
 crash.log
 override.tf
 override.tf.json
