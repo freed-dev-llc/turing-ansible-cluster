@@ -10,14 +10,14 @@
 
 Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
 
-**[Architecture Documentation](docs/ARCHITECTURE.md)** - Visual diagrams for network topology, deployment pipeline, and component interactions.
-
 **Turing Pi Terraform / OpenTofu tooling** (self-published, works with both Terraform and OpenTofu):
 
 [![Turing Pi Provider — freed-dev-llc/terraform-provider-turingpi](docs/assets/buttons/btn_terraform_provider_turingpi.svg)](https://github.com/freed-dev-llc/terraform-provider-turingpi)
 [![Turing Pi Modules — freed-dev-llc/terraform-turingpi-modules](docs/assets/buttons/btn_terraform_turingpi_modules.svg)](https://github.com/freed-dev-llc/terraform-turingpi-modules)
 
 ## Overview
+
+**[Architecture Documentation](docs/ARCHITECTURE.md)** - Visual diagrams for network topology, deployment pipeline, and component interactions.
 
 Deploy a 4-node K3s cluster on Turing Pi with:
 - **Armbian** with Rockchip BSP kernel (NPU support)
