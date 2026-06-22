@@ -1,6 +1,6 @@
 # Turing RK1 Ansible Cluster
 
-![Turing RK1 Ansible Cluster](docs/assets/turing-cluster/logos/turing_cluster_logo_horizontal.svg)
+![Turing RK1 Ansible Cluster](docs/assets/turing-cluster/logos/turing_cluster_logo_ansible_horizontal.svg)
 
 [![CI](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml)
 [![Armbian Build](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml)
@@ -11,6 +11,8 @@
 Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
 
 **[Architecture Documentation](docs/ARCHITECTURE.md)** - Visual diagrams for network topology, deployment pipeline, and component interactions.
+
+**Turing Pi Terraform / OpenTofu tooling** - self-published [provider](https://github.com/freed-dev-llc/terraform-provider-turingpi) and [modules](https://github.com/freed-dev-llc/terraform-turingpi-modules) (works with both Terraform and OpenTofu).
 
 ## Overview
 
@@ -249,7 +251,6 @@ GitHub Actions runs on every push and PR:
 
 ## Related Repositories
 
-- [terraform-provider-turingpi](https://github.com/freed-dev-llc/terraform-provider-turingpi) - Terraform BMC provider
 - [turing-rk1-cluster](https://github.com/freed-dev-llc/turing-rk1-cluster) - Original Talos Linux cluster
 
 ## License
