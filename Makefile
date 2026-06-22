@@ -3,7 +3,7 @@
 .PHONY: help lint test syntax-check install-deps clean release \
         pre-commit pre-commit-install pre-commit-update \
         vault-init vault-edit vault-view vault-encrypt vault-decrypt \
-        molecule molecule-test molecule-verify molecule-destroy
+        molecule molecule-test molecule-verify molecule-destroy molecule-all
 
 # Default target
 help:
@@ -42,12 +42,12 @@ help:
 
 # Install development dependencies
 install-deps:
-	pip install ansible ansible-lint yamllint pre-commit shellcheck-py molecule molecule-docker
+	pip install ansible "ansible-lint==26.4.0" "yamllint==1.38.0" pre-commit shellcheck-py molecule molecule-docker
 
 # Run linting
 lint:
 	@echo "Running yamllint..."
-	yamllint -c .yamllint ansible/ || true
+	yamllint -c .yamllint ansible/
 	@echo ""
 	@echo "Running ansible-lint..."
 	cd ansible && ansible-lint

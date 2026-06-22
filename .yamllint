@@ -23,5 +23,3 @@ ignore: |
   .ansible/
   .git/
   ansible/.ansible/
-  ansible/roles/geerlingguy.*
-  roles/geerlingguy.*

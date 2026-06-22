@@ -7,14 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Armbian R2 lifecycle: a prune step keeps only the newest 3 image versions and the manifests cap history to match; README gains live Armbian-version, build-status, and release badges (#25).
+- CI lints `.github/` and repo-root YAML (yamllint runs from the repo root) and pins its linters to the pre-commit versions (#24).
+
 ### Changed
 
 - `ansible/inventories/server/hosts.yml.example` k3s_version bumped from v1.31.3 to v1.31.4+k3s1 (pass-5 missed this template file; live `hosts.yml` was already on v1.31.4).
 - Armbian image metadata bumped to `26.08.0-trunk` (build 2026-06-06, kernel 6.1.115) in `images.json` (`eb1d3f0`).
+- Hardened Ansible network operations against flaky CI — get.k3s.io downloads, Helm repo fetches, git/pip installs, apt, and the Helm installer now retry; Kubernetes readiness waits are index-safe (#26).
+- Pinned the `jfreed-dev/turingpi` Terraform provider to `~> 1.4` with a committed multi-platform `.terraform.lock.hcl`; scoped the owner auto-approve workflow to `main` with a concurrency guard (#23, #24).
+- `make install-deps` pins ansible-lint/yamllint to the CI versions and `make lint` no longer swallows yamllint failures; `.ansible-lint` now enforces `no-handler` (this PR).
+
+### Fixed
+
+- `k3s_server` kubeconfig rewrite converted to a handler, resolving the ansible-lint `no-handler` warning (production profile now passes clean); the `rknn` model download's retries now take effect via a missing `until` (#26).
 
 ### Removed
 
 - Dead `rknn_version: "2.3.2"` variable from `ansible/inventories/server/hosts.yml` + `.example`. The role at `ansible/roles/rknn/tasks/main.yml` clones HEAD of `airockchip/rknn-llm`; this variable was never read. INSTALL.md and ARCHITECTURE.md correctly cite v1.2.1.
+- Unused `geerlingguy.docker` / `geerlingguy.pip` Galaxy role dependencies (never referenced by any play or role) and their now-vestigial lint excludes in `.yamllint`, `.ansible-lint`, and `.pre-commit-config.yaml` (this PR).
 
 ## [1.4.0] - 2026-05-19
 
