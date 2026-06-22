@@ -1,6 +1,9 @@
 # Turing RK1 Ansible Cluster
 
 [![CI](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml)
+[![Armbian Build](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml)
+[![Armbian image](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/freed-dev-llc/turing-ansible-cluster/main/images.json&query=$.latest.armbian_version&label=Armbian%20image&color=blue)](docs/ARMBIAN-BUILD.md)
+[![Release](https://img.shields.io/github/v/release/freed-dev-llc/turing-ansible-cluster?sort=semver&color=blue)](https://github.com/freed-dev-llc/turing-ansible-cluster/releases)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
@@ -29,7 +32,7 @@ Deploy a 4-node K3s cluster on Turing Pi with:
 - Terraform >= 1.5
 - Ansible >= 2.15
 - Turing Pi BMC access
-- Armbian image (see [Building Armbian](#building-armbian) or [download pre-built](https://armbian-builds.techki.to/turing-rk1/armbian/26.08.0-trunk/Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img.xz))
+- Armbian image (see [Building Armbian](#building-armbian) or [download pre-built](#image-distribution)) — current version shown by the **Armbian image** badge above
 
 ## Quick Start
 

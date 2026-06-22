@@ -222,7 +222,7 @@ jobs:
             armbian_version: $version,
             build_date: $date,
             download_url: $download_url
-          }] + .history[0:9])' images.json > images.json.tmp && mv images.json.tmp images.json
+          }] + .history[0:2])' images.json > images.json.tmp && mv images.json.tmp images.json
 
           echo "Updated images.json:"
           cat images.json
@@ -266,7 +266,7 @@ jobs:
               version: $prev_version,
               build_date: $prev_date,
               download_url: $prev_url
-            }] + (.armbian.history // [])[0:9])
+            }] + (.armbian.history // [])[0:1])
           else
             .
           end) |
@@ -300,6 +300,27 @@ jobs:
           # Upload to R2
           rclone copy r2-images.json "r2:${BUCKET}/turing-rk1/" --progress
           echo "Unified images.json uploaded to R2"
+
+      - name: Prune old image versions in R2 (keep newest 3)
+        run: |
+          BUCKET="armbian-builds"
+          KEEP=3
+          LATEST="${{ needs.check-version.outputs.upstream_version }}"
+          # Version dirs sort chronologically (Armbian uses YY.MM.x); keep the
+          # newest $KEEP and purge the rest. Never delete the version just built.
+          rclone lsf --dirs-only "r2:${BUCKET}/turing-rk1/armbian/" \
+            | sed 's:/*$::' | sort -V | head -n "-${KEEP}" \
+            | while read -r v; do
+                [ -z "$v" ] && continue
+                if [ "$v" = "$LATEST" ]; then
+                  echo "Keeping current latest: $v"
+                  continue
+                fi
+                echo "Pruning old version: $v"
+                rclone purge "r2:${BUCKET}/turing-rk1/armbian/${v}/" || echo "WARN: failed to prune $v"
+              done
+          echo "Versions retained in R2:"
+          rclone lsf --dirs-only "r2:${BUCKET}/turing-rk1/armbian/"
 
       - name: Commit and push changes
         run: |
