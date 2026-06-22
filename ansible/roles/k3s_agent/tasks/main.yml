@@ -38,6 +38,11 @@
     url: https://get.k3s.io
     dest: /tmp/k3s-install.sh
     mode: "0755"
+    timeout: 30
+  register: k3s_agent_install_script
+  until: k3s_agent_install_script is succeeded
+  retries: 3
+  delay: 5
   when: not k3s_agent_binary.stat.exists
 
 # Security: The install script verifies the k3s binary using SHA256 checksums
@@ -50,7 +55,6 @@
   ansible.builtin.command: /tmp/k3s-install.sh agent
   args:
     creates: /usr/local/bin/k3s
-  register: k3s_agent_install
 
 - name: Verify k3s binary version matches expected
   ansible.builtin.command: /usr/local/bin/k3s --version

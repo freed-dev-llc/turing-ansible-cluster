@@ -4,6 +4,10 @@
     name: prometheus-community
     repo_url: https://prometheus-community.github.io/helm-charts
     state: present
+  register: prometheus_helm_repo
+  until: prometheus_helm_repo is succeeded
+  retries: 3
+  delay: 10
 
 - name: Create monitoring namespace
   kubernetes.core.k8s:

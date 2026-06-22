@@ -4,6 +4,10 @@
     name: metallb
     repo_url: https://metallb.github.io/metallb
     state: present
+  register: metallb_helm_repo
+  until: metallb_helm_repo is succeeded
+  retries: 3
+  delay: 10
 
 - name: Create MetalLB namespace
   kubernetes.core.k8s:
@@ -35,7 +39,9 @@
     namespace: metallb-system
     name: metallb-controller
   register: metallb_controller
-  until: metallb_controller.resources[0].status.readyReplicas | default(0) >= 1
+  until: >-
+    (metallb_controller.resources | length > 0) and
+    (metallb_controller.resources[0].status.readyReplicas | default(0) >= 1)
   retries: 30
   delay: 10
 

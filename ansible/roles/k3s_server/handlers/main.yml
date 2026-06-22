@@ -4,3 +4,11 @@
     name: k3s
     state: restarted
     daemon_reload: true
+
+- name: Update local kubeconfig server address
+  delegate_to: localhost
+  become: false
+  ansible.builtin.replace:
+    path: "{{ kubeconfig_dir }}/kubeconfig"
+    regexp: 'https://127.0.0.1:6443'
+    replace: "https://{{ ansible_host }}:6443"

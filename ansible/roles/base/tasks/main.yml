@@ -3,12 +3,19 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
+  register: base_apt_cache
+  until: base_apt_cache is succeeded
+  retries: 3
+  delay: 5
 
 - name: Install base packages
   ansible.builtin.apt:
     name: "{{ base_packages }}"
     state: present
   register: base_packages_installed
+  until: base_packages_installed is succeeded
+  retries: 3
+  delay: 5
 
 - name: Load required kernel modules
   community.general.modprobe:
@@ -55,7 +62,7 @@
 
 - name: Set timezone
   community.general.timezone:
-    name: "{{ base_timezone | default('America/Chicago') }}"
+    name: "{{ base_timezone }}"
 
 # iSCSI configuration for Longhorn
 - name: Configure iSCSI for Longhorn
