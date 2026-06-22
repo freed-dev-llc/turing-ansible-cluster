@@ -12,6 +12,8 @@ Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware wi
 
 **[Architecture Documentation](docs/ARCHITECTURE.md)** - Visual diagrams for network topology, deployment pipeline, and component interactions.
 
+**Turing Pi Terraform / OpenTofu tooling** - self-published [provider](https://github.com/freed-dev-llc/terraform-provider-turingpi) and [modules](https://github.com/freed-dev-llc/terraform-turingpi-modules) (works with both Terraform and OpenTofu).
+
 ## Overview
 
 Deploy a 4-node K3s cluster on Turing Pi with:
@@ -249,7 +251,6 @@ GitHub Actions runs on every push and PR:
 
 ## Related Repositories
 
-- [terraform-provider-turingpi](https://github.com/freed-dev-llc/terraform-provider-turingpi) - Terraform BMC provider
 - [turing-rk1-cluster](https://github.com/freed-dev-llc/turing-rk1-cluster) - Original Talos Linux cluster
 
 ## License
