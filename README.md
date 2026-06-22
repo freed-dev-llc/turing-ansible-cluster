@@ -1,6 +1,6 @@
 # Turing RK1 Ansible Cluster
 
-![Turing RK1 Ansible Cluster](docs/assets/turing-cluster/logos/turing_cluster_logo_horizontal.svg)
+![Turing RK1 Ansible Cluster](docs/assets/turing-cluster/logos/turing_cluster_logo_ansible_horizontal.svg)
 
 [![CI](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/ci.yml)
 [![Armbian Build](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml/badge.svg)](https://github.com/freed-dev-llc/turing-ansible-cluster/actions/workflows/armbian-build.yml)
