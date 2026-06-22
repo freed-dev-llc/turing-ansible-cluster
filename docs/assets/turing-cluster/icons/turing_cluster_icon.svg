@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Turing RK1 cluster icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2C39"/>
+      <stop offset="1" stop-color="#0F1C25"/>
+    </linearGradient>
+    <linearGradient id="node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6E9DBA"/>
+      <stop offset="1" stop-color="#4E7C97"/>
+    </linearGradient>
+    <linearGradient id="cp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DB9560"/>
+      <stop offset="1" stop-color="#BE6C3A"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="236" height="236" rx="48" fill="url(#bg)" stroke="#2C4C61" stroke-width="2"/>
+
+  <g transform="translate(33,33)">
+    <g stroke="#4E7C97" fill="none" stroke-linecap="round">
+      <g opacity="0.5" stroke-width="4">
+        <line x1="36" y1="36" x2="138" y2="36"/>
+        <line x1="36" y1="138" x2="138" y2="138"/>
+        <line x1="36" y1="36" x2="36" y2="138"/>
+        <line x1="138" y1="36" x2="138" y2="138"/>
+      </g>
+      <g opacity="0.26" stroke-width="2.5">
+        <line x1="36" y1="36" x2="138" y2="138"/>
+        <line x1="138" y1="36" x2="36" y2="138"/>
+      </g>
+    </g>
+    <g stroke="#EAF2F7" stroke-opacity="0.10" stroke-width="1">
+      <rect x="0"   y="0"   width="72" height="72" rx="16" fill="url(#cp)"/>
+      <rect x="102" y="0"   width="72" height="72" rx="16" fill="url(#node)"/>
+      <rect x="0"   y="102" width="72" height="72" rx="16" fill="url(#node)"/>
+      <rect x="102" y="102" width="72" height="72" rx="16" fill="url(#node)"/>
+    </g>
+    <g>
+      <circle cx="36"  cy="36"  r="7.5" fill="#FBEEE3" opacity="0.92"/>
+      <circle cx="138" cy="36"  r="7.5" fill="#EAF2F7" opacity="0.85"/>
+      <circle cx="36"  cy="138" r="7.5" fill="#EAF2F7" opacity="0.85"/>
+      <circle cx="138" cy="138" r="7.5" fill="#EAF2F7" opacity="0.85"/>
+    </g>
+  </g>
+</svg>
