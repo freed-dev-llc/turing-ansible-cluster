@@ -10,10 +10,17 @@ name: Auto-approve owner PRs
 
 on:
   pull_request:
+    branches: [main]
     types: [opened, reopened, synchronize, ready_for_review]
 
 permissions:
   pull-requests: write
+
+# Collapse a push-burst (multiple synchronize events) into a single run so we
+# don't post duplicate approvals or waste runner minutes.
+concurrency:
+  group: auto-approve-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   approve:
@@ -26,10 +33,22 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'APPROVE',
-              body: 'Auto-approved: PR by the repository owner (sole code owner cannot self-approve).',
-            });
+            try {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                event: 'APPROVE',
+                body: 'Auto-approved: PR by the repository owner (sole code owner cannot self-approve).',
+              });
+            } catch (err) {
+              // A PR that was closed/merged (404) or is no longer reviewable
+              // (422) by the time this runs is not a real failure. Anything else
+              // — e.g. a 403 from a fork PR's read-only token — must still fail
+              // the run so an unsatisfiable review gate is visible.
+              if (err.status === 404 || err.status === 422) {
+                core.warning(`Skipped approval: ${err.message}`);
+              } else {
+                throw err;
+              }
+            }
