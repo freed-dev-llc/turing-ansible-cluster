@@ -9,15 +9,15 @@
       <stop offset="1" stop-color="#4E7C97"/>
     </linearGradient>
     <linearGradient id="cp" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#DB9560"/>
-      <stop offset="1" stop-color="#BE6C3A"/>
+      <stop offset="0" stop-color="#C4683F"/>
+      <stop offset="1" stop-color="#974124"/>
     </linearGradient>
   </defs>
 
   <!-- panel -->
   <rect x="1" y="1" width="798" height="238" rx="28" fill="url(#bg)" stroke="#2C4C61" stroke-width="1.5"/>
 
-  <!-- cluster icon: 2x2 nodes, control plane in copper -->
+  <!-- cluster icon: 2x2 nodes, control plane in terracotta -->
   <g transform="translate(80,44)">
     <g stroke="#4E7C97" fill="none" stroke-linecap="round">
       <g opacity="0.5" stroke-width="3">
@@ -47,8 +47,8 @@
 
   <!-- wordmark -->
   <g font-family="'Segoe UI','SF Pro Display',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif">
-    <text x="316" y="116" font-size="66" font-weight="800" letter-spacing="0.5" fill="#EAF2F7">TURING<tspan fill="#D2814E" dx="20">RK1</tspan></text>
-    <rect x="318" y="134" width="392" height="3" rx="1.5" fill="#D2814E" opacity="0.8"/>
+    <text x="316" y="116" font-size="66" font-weight="800" letter-spacing="0.5" fill="#EAF2F7">TURING<tspan fill="#C4683F" dx="20">RK1</tspan></text>
+    <rect x="318" y="134" width="392" height="3" rx="1.5" fill="#C4683F" opacity="0.8"/>
     <text x="320" y="168" font-size="19" font-weight="600" letter-spacing="4.4" fill="#7FA6BC">ANSIBLE · TERRAFORM · K3S · NPU</text>
   </g>
 </svg>
