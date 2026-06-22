@@ -31,6 +31,10 @@
     dest: /opt/rknn-llm
     version: main
     depth: 1
+  register: rknn_llm_clone
+  until: rknn_llm_clone is succeeded
+  retries: 3
+  delay: 10
 
 - name: Install RKNN runtime library from rknn-llm
   ansible.builtin.shell: |
@@ -57,6 +61,10 @@
     version: main
     depth: 1
     force: true
+  register: rknn_rkllama_clone
+  until: rknn_rkllama_clone is succeeded
+  retries: 3
+  delay: 10
 
 - name: Remove existing lib directory if not a symlink
   ansible.builtin.file:
@@ -87,6 +95,10 @@
     state: present
     virtualenv: "{{ rknn_venv_path }}"
     extra_args: --upgrade
+  register: rknn_pip_upgrade
+  until: rknn_pip_upgrade is succeeded
+  retries: 3
+  delay: 10
 
 - name: Install rkllama Python dependencies in venv
   ansible.builtin.pip:
@@ -97,6 +109,10 @@
       - transformers
       - numpy
     virtualenv: "{{ rknn_venv_path }}"
+  register: rknn_pip_deps
+  until: rknn_pip_deps is succeeded
+  retries: 3
+  delay: 10
 
 - name: Create RKNN environment script
   ansible.builtin.copy:
@@ -124,7 +140,8 @@
     - not rknn_skip_model_download
     - not rknn_model_file.stat.exists
   register: rknn_model_download
-  retries: 2
+  until: rknn_model_download is succeeded
+  retries: 3
   delay: 10
 
 - name: Display model download status  # noqa: no-handler

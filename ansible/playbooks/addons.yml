@@ -21,6 +21,10 @@
       args:
         creates: /usr/local/bin/helm
         executable: /bin/bash
+      register: addons_helm_install
+      until: addons_helm_install is succeeded
+      retries: 3
+      delay: 10
 
     - name: Install Python kubernetes module
       ansible.builtin.apt:
