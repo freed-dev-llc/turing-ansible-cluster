@@ -8,14 +8,14 @@
 [![Release](https://img.shields.io/github/v/release/freed-dev-llc/turing-ansible-cluster?sort=semver&color=blue)](https://github.com/freed-dev-llc/turing-ansible-cluster/releases)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Infrastructure-as-code for deploying K3s Kubernetes on Turing Pi RK1 hardware with NPU support.
-
 **Turing Pi Terraform / OpenTofu tooling** (self-published, works with both Terraform and OpenTofu):
 
 [![Turing Pi Provider — freed-dev-llc/terraform-provider-turingpi](docs/assets/buttons/btn_terraform_provider_turingpi.svg)](https://github.com/freed-dev-llc/terraform-provider-turingpi)
 [![Turing Pi Modules — freed-dev-llc/terraform-turingpi-modules](docs/assets/buttons/btn_terraform_turingpi_modules.svg)](https://github.com/freed-dev-llc/terraform-turingpi-modules)
 
 ## Overview
+
+Infrastructure-as-code for deploying Kubernetes on Turing Pi RK1 hardware with NPU support.
 
 **[Architecture Documentation](docs/ARCHITECTURE.md)** - Visual diagrams for network topology, deployment pipeline, and component interactions.
 
@@ -202,7 +202,7 @@ For advanced options (custom packages, static IPs, SSH keys), see **[docs/ARMBIA
 
 ### Image Distribution
 
-Pre-built images are hosted on Cloudflare R2 at [armbian-builds.techki.to](https://armbian-builds.techki.to):
+Pre-built images are hosted on Cloudflare R2 (see [images.json](images.json) for the latest download URL and checksum):
 
 ```bash
 # Download latest image
