@@ -254,6 +254,8 @@ GitHub Actions runs on every push and PR:
 
 ## Related Repositories
 
+[![Turing RK1 Cluster — freed-dev-llc/turing-rk1-cluster](docs/assets/buttons/btn_turing_rk1_cluster.svg)](https://github.com/freed-dev-llc/turing-rk1-cluster)
+
 - [turing-rk1-cluster](https://github.com/freed-dev-llc/turing-rk1-cluster) - Original Talos Linux cluster
 
 ## License
