@@ -129,53 +129,23 @@
       register: k3s_service_status
       failed_when: false
 
-    - name: Display k3s service status
-      ansible.builtin.debug:
-        msg: "K3s service state: {{ k3s_service_status.status.ActiveState | default('unknown') }}"
-
-    # ==================== API Server Check ====================
-
-    - name: Wait for k3s API to be ready
-      ansible.builtin.command: k3s kubectl get nodes
-      register: k3s_nodes
-      until: k3s_nodes.rc == 0
-      retries: 30
-      delay: 10
-      changed_when: false
-      failed_when: false
-
-    - name: Verify k3s API is responding
+    - name: Verify k3s service is enabled
       ansible.builtin.assert:
         that:
-          - k3s_nodes.rc == 0
-        fail_msg: "K3s API not responding after 5 minutes"
-        success_msg: "K3s API is responding"
-      when: k3s_nodes is defined
+          - k3s_service_status.status.UnitFileState == "enabled"
+        fail_msg: "k3s.service should be enabled"
+        success_msg: "k3s.service is enabled"
 
-    - name: Display node status
+    - name: Display k3s service status
       ansible.builtin.debug:
-        msg: "{{ k3s_nodes.stdout_lines }}"
-      when: k3s_nodes.rc == 0
+        msg: >-
+          K3s service: {{ k3s_service_status.status.UnitFileState | default('unknown') }}
+          / {{ k3s_service_status.status.ActiveState | default('unknown') }}
 
-    # ==================== Token and Kubeconfig ====================
-
-    - name: Verify node token file exists
-      ansible.builtin.stat:
-        path: /var/lib/rancher/k3s/server/node-token
-      register: k3s_node_token
-      failed_when: not k3s_node_token.stat.exists
-
-    - name: Verify kubeconfig exists
-      ansible.builtin.stat:
-        path: /etc/rancher/k3s/k3s.yaml
-      register: k3s_kubeconfig
-      failed_when: not k3s_kubeconfig.stat.exists
-
-    - name: Verify kubeconfig has secure permissions
-      ansible.builtin.stat:
-        path: /etc/rancher/k3s/k3s.yaml
-      register: k3s_kubeconfig_perms
-      failed_when: k3s_kubeconfig_perms.stat.mode != "0600"
+    # Molecule installs k3s with INSTALL_K3S_SKIP_START (systemd/k3s can't
+    # reliably start inside Docker), so runtime artifacts — a live API,
+    # node-token, and kubeconfig — are not created here. Live cluster behaviour
+    # is validated on real hardware; this verify covers install + config.
 
     # ==================== Summary ====================
 
@@ -188,6 +158,5 @@
           - "Binary: {{ k3s_binary.stat.path }}"
           - "Version: {{ k3s_version_output.stdout | trim }}"
           - "Config: {{ k3s_config_file.stat.path }}"
-          - "Service: {{ k3s_service_status.status.ActiveState | default('unknown') }}"
-          - "API Ready: {{ 'Yes' if k3s_nodes.rc == 0 else 'No' }}"
+          - "Service: {{ k3s_service_status.status.UnitFileState | default('unknown') }}"
           - "=========================================="
