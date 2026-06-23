@@ -7,27 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-23
+
 ### Added
 
+- **Brand identity & README revamp** — a portable brand guide (`docs/BRAND.md`), an Ansible-logo banner, a cluster icon, and brand-matched repo buttons (Terraform provider, Terraform modules, and a cluster back-link), with the README realigned to the Turing Pi family convention and the Architecture/Overview sections reordered (#28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39).
+- **Molecule coverage extended to the `base` role** — every active systemd/D-Bus/service-start task is gated behind the `molecule_test` flag so the role tests cleanly under Docker; `verify.yml` asserts durable config artifacts (packages, written config, enabled units) rather than live runtime (#42).
 - Armbian R2 lifecycle: a prune step keeps only the newest 3 image versions and the manifests cap history to match; README gains live Armbian-version, build-status, and release badges (#25).
 - CI lints `.github/` and repo-root YAML (yamllint runs from the repo root) and pins its linters to the pre-commit versions (#24).
 
 ### Changed
 
-- `ansible/inventories/server/hosts.yml.example` k3s_version bumped from v1.31.3 to v1.31.4+k3s1 (pass-5 missed this template file; live `hosts.yml` was already on v1.31.4).
+- The `k3s_server` Molecule scenario now installs k3s without starting it (`k3s_server_skip_start` → `INSTALL_K3S_SKIP_START`), avoiding flaky systemd-in-Docker failures while still verifying the install and config (#41).
+- Flaky Molecule tests moved into a dedicated `paths: ansible/**`-filtered workflow wrapped in a 3-attempt retry, so docs/asset PRs skip them and "Ansible Lint" stays the only required check (#40).
+- `ansible/inventories/server/hosts.yml.example` k3s_version bumped from v1.31.3 to v1.31.4+k3s1 (pass-5 missed this template file; live `hosts.yml` was already on v1.31.4) (#13).
 - Armbian image metadata bumped to `26.08.0-trunk` (build 2026-06-06, kernel 6.1.115) in `images.json` (`eb1d3f0`).
 - Hardened Ansible network operations against flaky CI — get.k3s.io downloads, Helm repo fetches, git/pip installs, apt, and the Helm installer now retry; Kubernetes readiness waits are index-safe (#26).
 - Pinned the `jfreed-dev/turingpi` Terraform provider to `~> 1.4` with a committed multi-platform `.terraform.lock.hcl`; scoped the owner auto-approve workflow to `main` with a concurrency guard (#23, #24).
-- `make install-deps` pins ansible-lint/yamllint to the CI versions and `make lint` no longer swallows yamllint failures; `.ansible-lint` now enforces `no-handler` (this PR).
+- `make install-deps` pins ansible-lint/yamllint to the CI versions and `make lint` no longer swallows yamllint failures; `.ansible-lint` now enforces `no-handler` (#27).
+- Hardened CI plumbing — the Release workflow's changelog-generation step, the owner auto-approve workflow, and Dependabot's migration to the org reusable auto-merge workflow (#14, #15, #17, #20).
 
 ### Fixed
 
 - `k3s_server` kubeconfig rewrite converted to a handler, resolving the ansible-lint `no-handler` warning (production profile now passes clean); the `rknn` model download's retries now take effect via a missing `until` (#26).
+- Stale version references, add-on ordering, and NPU/vault details corrected across the docs (#16).
 
 ### Removed
 
-- Dead `rknn_version: "2.3.2"` variable from `ansible/inventories/server/hosts.yml` + `.example`. The role at `ansible/roles/rknn/tasks/main.yml` clones HEAD of `airockchip/rknn-llm`; this variable was never read. INSTALL.md and ARCHITECTURE.md correctly cite v1.2.1.
-- Unused `geerlingguy.docker` / `geerlingguy.pip` Galaxy role dependencies (never referenced by any play or role) and their now-vestigial lint excludes in `.yamllint`, `.ansible-lint`, and `.pre-commit-config.yaml` (this PR).
+- Dead `rknn_version: "2.3.2"` variable from `ansible/inventories/server/hosts.yml` + `.example`. The role at `ansible/roles/rknn/tasks/main.yml` clones HEAD of `airockchip/rknn-llm`; this variable was never read. INSTALL.md and ARCHITECTURE.md correctly cite v1.2.1 (#13).
+- Unused `geerlingguy.docker` / `geerlingguy.pip` Galaxy role dependencies (never referenced by any play or role) and their now-vestigial lint excludes in `.yamllint`, `.ansible-lint`, and `.pre-commit-config.yaml` (#27).
 
 ## [1.4.0] - 2026-05-19
 
@@ -398,7 +406,8 @@ The K3s version bump (v1.31.3 → v1.31.4+k3s1) is a patch-level upgrade and is 
 - Comprehensive installation guide (INSTALL.md)
 - Implementation documentation (docs/IMPLEMENTATION.md)
 
-[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.6...v1.4.0
 [1.3.6]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.4...v1.3.5
