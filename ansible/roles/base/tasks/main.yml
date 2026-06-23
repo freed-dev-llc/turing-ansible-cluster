@@ -46,6 +46,9 @@
 - name: Set hostname
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
+  # hostnamectl talks to systemd over D-Bus, which is unreliable in containers;
+  # the /etc/hostname file written below is what tests assert against.
+  when: not (molecule_test | default(false))
 
 - name: Update /etc/hostname file
   ansible.builtin.copy:
@@ -63,16 +66,22 @@
 - name: Set timezone
   community.general.timezone:
     name: "{{ base_timezone }}"
+  # timedatectl uses D-Bus, unreliable in containers; set on real hardware only.
+  when: not (molecule_test | default(false))
 
 # iSCSI configuration for Longhorn
 - name: Configure iSCSI for Longhorn
   when: "'open-iscsi' in base_packages"
   block:
+    # Starting iscsid pulls in systemd/D-Bus, which can't reliably bring a
+    # service up inside a container, so skip the live start under Molecule and
+    # validate it on real hardware. The initiator-name file below is still set.
     - name: Ensure iscsid service is enabled and started
       ansible.builtin.systemd:
         name: iscsid
         state: started
         enabled: true
+      when: not (molecule_test | default(false))
 
     - name: Ensure iscsi socket is enabled
       ansible.builtin.systemd:
@@ -80,6 +89,7 @@
         state: started
         enabled: true
       failed_when: false
+      when: not (molecule_test | default(false))
 
     - name: Verify iSCSI initiator name exists
       ansible.builtin.stat:
