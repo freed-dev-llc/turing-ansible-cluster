@@ -20,3 +20,10 @@ cluster_name: "k3s-cluster"
 
 # Kubeconfig destination directory (defaults to parent of playbook directory)
 kubeconfig_dir: "{{ playbook_dir }}/.."
+
+# Skip starting the k3s service after install. Leave false in production so the
+# cluster comes up; set true for container-based testing (Molecule), where
+# systemd/D-Bus can't reliably start k3s. When true, the post-install steps
+# that need a running cluster (wait-for-ready, node-token, kubeconfig) are
+# skipped, but the binary, config, and (enabled) systemd unit are still created.
+k3s_server_skip_start: false
