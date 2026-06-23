@@ -8,10 +8,26 @@
 [![Release](https://img.shields.io/github/v/release/freed-dev-llc/turing-ansible-cluster?sort=semver&color=blue)](https://github.com/freed-dev-llc/turing-ansible-cluster/releases)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Turing Pi Terraform / OpenTofu tooling** (self-published, works with both Terraform and OpenTofu):
+> **Part of the Turing Pi cluster stack:** this repo deploys a **K3s** cluster on Armbian (Terraform + Ansible); the **provider** drives the Turing Pi BMC and the **modules** wrap it into reusable Terraform. For the **Talos** variant, see the RK1 cluster repo.
 
-[![Turing Pi Provider — freed-dev-llc/terraform-provider-turingpi](docs/assets/buttons/btn_terraform_provider_turingpi.svg)](https://github.com/freed-dev-llc/terraform-provider-turingpi)
-[![Turing Pi Modules — freed-dev-llc/terraform-turingpi-modules](docs/assets/buttons/btn_terraform_turingpi_modules.svg)](https://github.com/freed-dev-llc/terraform-turingpi-modules)
+[![Terraform Provider — freed-dev-llc/terraform-provider-turingpi](docs/assets/buttons/btn_terraform_provider_turingpi.svg)](https://github.com/freed-dev-llc/terraform-provider-turingpi)
+[![Terraform Modules — freed-dev-llc/terraform-turingpi-modules](docs/assets/buttons/btn_terraform_turingpi_modules.svg)](https://github.com/freed-dev-llc/terraform-turingpi-modules)
+[![Turing RK1 Cluster — freed-dev-llc/turing-rk1-cluster](docs/assets/buttons/btn_turing_rk1_cluster.svg)](https://github.com/freed-dev-llc/turing-rk1-cluster)
+
+## Contents
+
+- [Overview](#overview)
+- [Node Configuration](#node-configuration)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Repository Structure](#repository-structure)
+- [Cluster Configuration](#cluster-configuration)
+- [Addons Deployed](#addons-deployed)
+- [Storage Optimization](#storage-optimization)
+- [NPU Support](#npu-support)
+- [Building Armbian](#building-armbian)
+- [Development](#development)
+- [License](#license)
 
 ## Overview
 
@@ -251,12 +267,6 @@ GitHub Actions runs on every push and PR:
 - **Ansible Lint** - Code quality checks (production profile)
 - **Syntax Check** - Validates all playbooks
 - **Terraform Validate** - Checks Terraform configuration
-
-## Related Repositories
-
-[![Turing RK1 Cluster — freed-dev-llc/turing-rk1-cluster](docs/assets/buttons/btn_turing_rk1_cluster.svg)](https://github.com/freed-dev-llc/turing-rk1-cluster)
-
-- [turing-rk1-cluster](https://github.com/freed-dev-llc/turing-rk1-cluster) - Original Talos Linux cluster
 
 ## License
 
