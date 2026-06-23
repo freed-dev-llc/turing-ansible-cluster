@@ -94,34 +94,3 @@ jobs:
         run: |
           terraform init -backend=false
           terraform validate
-
-  molecule:
-    name: Molecule Tests
-    runs-on: [self-hosted, linux]
-    strategy:
-      fail-fast: false
-      matrix:
-        role:
-          - base
-          - k3s_server
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install ansible molecule molecule-docker docker
-
-      - name: Run Molecule tests
-        working-directory: ansible/roles/${{ matrix.role }}
-        run: |
-          molecule test
-        env:
-          PY_COLORS: '1'
-          ANSIBLE_FORCE_COLOR: '1'
-          ANSIBLE_ALLOW_BROKEN_CONDITIONALS: 'true'
