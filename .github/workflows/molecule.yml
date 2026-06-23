@@ -1,0 +1,64 @@
+---
+name: Molecule
+
+# Heavyweight role tests (systemd/k3s-in-Docker) are flaky and slow, so they
+# only run when Ansible content actually changes. Docs/asset-only commits skip
+# them entirely. These are intentionally not required status checks; the
+# always-on "Ansible Lint" check in ci.yml is the merge gate.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ansible/**'
+      - '.github/workflows/molecule.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ansible/**'
+      - '.github/workflows/molecule.yml'
+
+jobs:
+  molecule:
+    name: Molecule Tests
+    runs-on: [self-hosted, linux]
+    strategy:
+      fail-fast: false
+      matrix:
+        role:
+          - base
+          - k3s_server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible molecule molecule-docker docker
+
+      # Container/systemd/k3s-in-Docker startup is racy (transient D-Bus resets
+      # and container exits), so retry the whole scenario before failing.
+      - name: Run Molecule tests
+        working-directory: ansible/roles/${{ matrix.role }}
+        run: |
+          attempts=3
+          for i in $(seq 1 "$attempts"); do
+            echo "::group::Molecule attempt $i of $attempts"
+            if molecule test; then
+              echo "::endgroup::"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "Attempt $i failed; cleaning up before retry" >&2
+            molecule destroy || true
+          done
+          echo "Molecule tests failed after $attempts attempts" >&2
+          exit 1
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_ALLOW_BROKEN_CONDITIONALS: 'true'
