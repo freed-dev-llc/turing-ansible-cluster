@@ -7,8 +7,9 @@ icon. Copy this file into any repo and adapt the **project‑specific** bits
 typography, layout) the same so everything looks like one family.
 
 The anchor color is **PANTONE 17‑4139 TCX "Niagara"** (a denim/teal blue,
-≈ `#5B89A6`). The system deliberately avoids the teal‑green / purple‑gradient
-"AI" look — the warmth comes from an earthy complementary accent, not a neon.
+≈ `#5B89A6`). The system deliberately avoids the neon teal‑green / purple‑gradient
+"AI" look — warmth comes from an earthy complementary accent by default, and any
+cool accent stays a controlled, solid hue, never a neon gradient.
 
 ---
 
@@ -27,18 +28,27 @@ The anchor color is **PANTONE 17‑4139 TCX "Niagara"** (a denim/teal blue,
 | Text — off‑white | `text` | `#EAF2F7` | Wordmark, light shapes. |
 | Warm white | `warm-white` | `#FBEEE3` | A "core" dot sitting on the accent shape (subtle warmth tie‑in). |
 
-**Accent variations.** Keep Niagara + the dark ink constant; vary only the warm
-accent if a project wants its own flavor (all are warm complements of Niagara,
-so they harmonize):
+**Accent variations.** Keep Niagara + the dark ink constant; the accent is what
+varies per project. Sibling projects of the same kind share one accent and are
+told apart by glyph + wordmark; distinct tools each take their own hue as an
+identifier. Warm accents (the default) are warm complements of Niagara and
+harmonize automatically; cool accents are used deliberately to set a tool apart.
 
-| Variant | Gradient | Flat |
-|---------|----------|------|
-| **Terracotta** (default) | `#C4683F → #974124` | `#C4683F` |
-| Copper | `#DB9560 → #BE6C3A` | `#D2814E` |
-| Amber / brass | `#CDA052 → #9C6F2E` | `#C5953F` |
+| Variant | Gradient | Flat | Used by |
+|---------|----------|------|---------|
+| **Terracotta** (default) | `#C4683F → #974124` | `#C4683F` | the agents — Aria, Elara, Leeloo |
+| Amber / brass | `#CDA052 → #9C6F2E` | `#C5953F` | Argus |
+| Solar gold | `#E6A93C → #B9781E` | `#E6A93C` | Helios |
+| Copper | `#DB9560 → #BE6C3A` | `#D2814E` | (reserve) |
+| Blue | `#4A93C9 → #2F6F9E` | `#4A93C9` | Reach |
+| Green | `#6FB58C → #3E8C66` | `#6FB58C` | Sisyphus |
+| Violet | `#A78BD0 → #6A5A9E` | `#A78BD0` | Mnemosyne |
 
-> Rule of thumb: the accent should be a **warm hue (≈ 20–45°)** so it complements
-> Niagara's ≈ 205°. Avoid greens and violets — that's where the "AI" cliché lives.
+> Rule of thumb: a **warm hue (≈ 20–45°)** is the default and complements Niagara's
+> ≈ 205°. The thing to avoid is the **neon teal‑green / purple‑gradient "AI" cliché** —
+> keep every accent a solid, controlled hue. Cool accents (blue/green/violet) are fine
+> as deliberate per‑tool identifiers; on a cool accent, use the cool `text` white
+> (`#EAF2F7`) for the core dot instead of `warm-white`.
 
 ---
 
