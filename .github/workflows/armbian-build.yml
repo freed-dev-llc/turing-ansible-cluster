@@ -23,7 +23,7 @@ jobs:
       upstream_version: ${{ steps.check.outputs.upstream_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check upstream VERSION
         id: check
@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
