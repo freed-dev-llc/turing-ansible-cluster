@@ -11,8 +11,12 @@ dependency:
 driver:
   name: docker
 
+# The platform name doubles as the Docker container name, which is unique per
+# Docker host. CI sets MOLECULE_PLATFORM_SUFFIX (e.g. -<run_id>) so concurrent
+# workflow runs on the same runner host don't fight over one container;
+# locally the suffix is empty and the name stays k3s-server-test.
 platforms:
-  - name: k3s-server-test
+  - name: k3s-server-test${MOLECULE_PLATFORM_SUFFIX:-}
     image: geerlingguy/docker-debian12-ansible:latest
     command: ""
     privileged: true
@@ -26,10 +30,10 @@ platforms:
     capabilities:
       - SYS_ADMIN
       - NET_ADMIN
-    # Expose k3s API port for testing
-    published_ports:
-      - "0.0.0.0:6443:6443/tcp"
 
+# No published_ports on the platform: k3s never starts here
+# (k3s_server_skip_start), so nothing listens on 6443, and a host-port
+# publish would collide across concurrent runs on the same runner host.
 provisioner:
   name: ansible
   playbooks:
@@ -38,9 +42,9 @@ provisioner:
     verify: verify.yml
   inventory:
     host_vars:
-      k3s-server-test:
-        ansible_host: k3s-server-test
-        inventory_hostname: k3s-server-test
+      k3s-server-test${MOLECULE_PLATFORM_SUFFIX:-}:
+        ansible_host: k3s-server-test${MOLECULE_PLATFORM_SUFFIX:-}
+        inventory_hostname: k3s-server-test${MOLECULE_PLATFORM_SUFFIX:-}
   config_options:
     defaults:
       roles_path: ${MOLECULE_PROJECT_DIRECTORY}/..:${MOLECULE_EPHEMERAL_DIRECTORY}/roles

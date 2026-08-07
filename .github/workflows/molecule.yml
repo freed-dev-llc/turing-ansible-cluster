@@ -65,3 +65,18 @@ jobs:
           # warning for the container test runs only; production playbook
           # runs do not set this, so the strict check still applies there.
           ANSIBLE_ALLOW_BROKEN_CONDITIONALS: 'true'
+          # Unique container names per workflow run: concurrent runs (e.g. a
+          # PR run next to a main-push run) on the same runner host otherwise
+          # collide on the fixed molecule container names and fail with
+          # UNREACHABLE during prepare. Reruns keep the run_id, so molecule's
+          # leading destroy still cleans up a previous attempt's container.
+          MOLECULE_PLATFORM_SUFFIX: '-${{ github.run_id }}'
+
+      # A cancelled run skips molecule's own trailing destroy; without this,
+      # its uniquely-named container would linger on the runner host forever.
+      - name: Clean up molecule containers
+        if: always()
+        working-directory: ansible/roles/${{ matrix.role }}
+        run: molecule destroy || true
+        env:
+          MOLECULE_PLATFORM_SUFFIX: '-${{ github.run_id }}'

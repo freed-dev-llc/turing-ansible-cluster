@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `softprops/action-gh-release` bumped v2.6.2 to v3.0.2 (SHA-pinned): v2 targets the deprecated Node 20 Actions runtime, which the v1.6.0 release run flagged; v3 moves to Node 24 with no input changes (#51).
+- Molecule container names are now unique per CI run (`MOLECULE_PLATFORM_SUFFIX` = `-<run_id>`, empty locally) and the vestigial `6443` host-port publish is gone from the `k3s_server` scenario, so concurrent workflow runs on one runner host no longer collide on container names or ports (the observed UNREACHABLE-during-prepare flake); an `if: always()` destroy step cleans up containers from cancelled runs (#53).
 - First Dependabot majors landed after #45 made the config valid: `actions/checkout` v6 to v7, `actions/setup-python` v6 to v7, `actions/github-script` v7 to v9, and `docker/setup-qemu-action` v3.7.0 to v4.2.0 (SHA-pinned). Each was checked against its breaking changes: no `pull_request_target`/`workflow_run` checkouts, no `pip-install` input, and the auto-approve script uses only injected `github`/`context`/`core` objects (#46, #47, #48, #49).
 
 ## [1.6.0] - 2026-08-07
