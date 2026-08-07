@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-08-07
+
 ### Changed
 
 - `softprops/action-gh-release` bumped v2.6.2 to v3.0.2 (SHA-pinned): v2 targets the deprecated Node 20 Actions runtime, which the v1.6.0 release run flagged; v3 moves to Node 24 with no input changes (#51).
@@ -438,7 +440,8 @@ The K3s version bump (v1.31.3 → v1.31.4+k3s1) is a patch-level upgrade and is 
 - Comprehensive installation guide (INSTALL.md)
 - Implementation documentation (docs/IMPLEMENTATION.md)
 
-[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.6...v1.4.0
