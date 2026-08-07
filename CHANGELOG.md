@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `softprops/action-gh-release` bumped v2.6.2 to v3.0.2 (SHA-pinned): v2 targets the deprecated Node 20 Actions runtime, which the v1.6.0 release run flagged; v3 moves to Node 24 with no input changes (#51).
+
 ## [1.6.0] - 2026-08-07
 
 Fixes from an adversarial review of the whole repo (16 confirmed findings).
