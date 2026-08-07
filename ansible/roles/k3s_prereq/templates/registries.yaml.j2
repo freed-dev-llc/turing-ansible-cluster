@@ -1,0 +1,7 @@
+# k3s private registry configuration
+# Managed by Ansible - do not edit manually
+# Reference: https://docs.k3s.io/installation/private-registry
+#
+# private_registries holds the full registries.yaml structure
+# (mirrors:/configs: keys), rendered verbatim.
+{{ private_registries | to_nice_yaml(indent=2) }}

@@ -4,6 +4,19 @@
     path: /usr/local/bin/k3s
   register: k3s_server_binary
 
+- name: Check installed k3s version
+  ansible.builtin.command: /usr/local/bin/k3s --version
+  register: k3s_server_installed_version
+  changed_when: false
+  failed_when: false
+  when: k3s_server_binary.stat.exists
+
+- name: Determine whether k3s install is needed
+  ansible.builtin.set_fact:
+    k3s_server_install_needed: >-
+      {{ not k3s_server_binary.stat.exists
+         or k3s_version not in (k3s_server_installed_version.stdout | default('')) }}
+
 - name: Create k3s config directory
   ansible.builtin.file:
     path: /etc/rancher/k3s
@@ -27,18 +40,19 @@
   until: k3s_server_install_script is succeeded
   retries: 3
   delay: 5
-  when: not k3s_server_binary.stat.exists
+  when: k3s_server_install_needed | bool
 
 # Security: The install script verifies the k3s binary using SHA256 checksums
 # from GitHub releases. We verify the installed binary post-installation.
+# Also runs when k3s_version differs from the installed binary, upgrading it.
 - name: Install k3s server
   environment:
     INSTALL_K3S_VERSION: "{{ k3s_version }}"
     K3S_TOKEN: "{{ k3s_cluster_token }}"
     INSTALL_K3S_SKIP_START: "{{ 'true' if k3s_server_skip_start | bool else 'false' }}"
   ansible.builtin.command: /tmp/k3s-install.sh server
-  args:
-    creates: /usr/local/bin/k3s
+  changed_when: true
+  when: k3s_server_install_needed | bool
   register: k3s_server_install
 
 - name: Verify k3s binary version matches expected

@@ -2,3 +2,7 @@
 - name: Reload sysctl
   ansible.builtin.command: sysctl --system
   changed_when: true
+  # Applying sysctl live needs kernel access containers lack (e.g. bridge
+  # keys without br_netfilter on the Docker host), so skip under Molecule;
+  # verify.yml asserts the written config file instead.
+  when: not (molecule_test | default(false))

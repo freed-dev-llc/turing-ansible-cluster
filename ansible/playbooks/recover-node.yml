@@ -3,10 +3,16 @@
 # This playbook cleans up stale cluster state and re-registers the node
 #
 # Usage:
-#   ansible-playbook -i inventories/server/hosts.yml playbooks/recover-node.yml --limit node3
-#   ansible-playbook -i inventories/server/hosts.yml playbooks/recover-node.yml --limit node3 -e force_reinstall=true
+#   ansible-playbook -i inventories/server/hosts.yml playbooks/recover-node.yml \
+#     -e recover_target=node3 [-e force_reinstall=true]
+#
+# recover_target selects the worker node(s) to recover; comma-separate to
+# recover several. Do NOT use --limit for host selection: the cleanup,
+# Longhorn, and verification plays run on the control plane, and --limit
+# would silently skip them (the playbook aborts if it detects this).
 #
 # Options:
+#   recover_target: node3  - REQUIRED: worker node(s) to recover
 #   force_reinstall: true  - Force reinstall K3s even if binary exists
 #   skip_cleanup: true     - Skip cluster cleanup (if node was never registered)
 #   skip_longhorn: true    - Skip Longhorn disk configuration
@@ -18,12 +24,22 @@
   run_once: true
 
   vars:
-    target_nodes: "{{ ansible_play_hosts_all | difference(groups['controlplane']) }}"
+    target_nodes: "{{ (recover_target | default('')) | split(',') | map('trim') | reject('equalto', '') | list }}"
 
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
   tasks:
+    - name: Validate recovery target selection
+      ansible.builtin.assert:
+        that:
+          - target_nodes | length > 0
+          - target_nodes | difference(groups['workers']) | length == 0
+        fail_msg: >-
+          Select worker node(s) with -e recover_target=<node>[,<node>...].
+          Valid workers: {{ groups['workers'] | join(', ') }}.
+          Do not use --limit for host selection.
+
     - name: Identify target nodes for recovery
       ansible.builtin.debug:
         msg: "Recovering nodes: {{ target_nodes }}"
@@ -101,9 +117,13 @@
       loop: "{{ recover_longhorn_disks.results | default([]) }}"
       when: not (skip_longhorn | default(false))
 
+    - name: Record that cluster cleanup ran
+      ansible.builtin.set_fact:
+        recover_cleanup_done: true
+
 
 - name: Prepare recovered node
-  hosts: workers:&{{ ansible_limit | default('all') }}
+  hosts: "{{ recover_target | default('__none__') }}:&workers"
   become: true
   gather_facts: true
 
@@ -111,6 +131,16 @@
     - "{{ playbook_dir }}/../secrets/{{ target_environment | default('server') }}.yml"
 
   pre_tasks:
+    # Catches --limit runs: the cleanup play targets the control plane, so a
+    # --limit that excludes it would skip cleanup silently.
+    - name: Confirm the cleanup play ran on the control plane
+      ansible.builtin.assert:
+        that:
+          - hostvars[groups['controlplane'][0]].recover_cleanup_done | default(false)
+        fail_msg: >-
+          The cleanup play did not run. Invoke this playbook without --limit
+          and select nodes with -e recover_target=<node>.
+
     - name: Wait for node to be reachable
       ansible.builtin.wait_for_connection:
         timeout: 300
@@ -176,7 +206,7 @@
   run_once: true
 
   vars:
-    target_nodes: "{{ ansible_play_hosts_all | difference(groups['controlplane']) }}"
+    target_nodes: "{{ (recover_target | default('')) | split(',') | map('trim') | reject('equalto', '') | list }}"
 
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml

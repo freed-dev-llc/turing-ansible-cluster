@@ -447,7 +447,7 @@ iSCSI services (`iscsid.socket`, `iscsid.service`) are enabled automatically.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ROOT_PASSWORD` | `Turing@Rk1#2024` | Root password for first boot |
+| `ROOT_PASSWORD` | (required, no default) | Root password for first boot |
 | `SSH_PUBKEY_FILE` | `~/.ssh/workbench.pub` | SSH public key to inject |
 | `TIMEZONE` | `America/Chicago` | System timezone |
 | `SKIP_PACKAGES` | `false` | Set to `true` to skip package installation |

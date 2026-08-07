@@ -107,10 +107,11 @@ download_url() {
 
     log_step "Downloading from URL..."
 
+    # -f: fail on HTTP errors instead of saving an error page as the image
     if [[ -n "$output" ]]; then
-        curl -L -o "$output" "$url" --progress-bar
+        curl -fL -o "$output" "$url" --progress-bar
     else
-        curl -L -O -J "$url" --progress-bar
+        curl -fL -O -J "$url" --progress-bar
     fi
 }
 
@@ -129,10 +130,11 @@ get_latest_image() {
         exit 1
     fi
 
-    local download_url=$(jq -r '.latest.download_url // ""' "$images_json")
-    local filename=$(jq -r '.latest.filename // ""' "$images_json")
-    local sha256=$(jq -r '.latest.sha256 // ""' "$images_json")
-    local version=$(jq -r '.latest.armbian_version // ""' "$images_json")
+    local download_url filename sha256 version
+    download_url=$(jq -r '.latest.download_url // ""' "$images_json")
+    filename=$(jq -r '.latest.filename // ""' "$images_json")
+    sha256=$(jq -r '.latest.sha256 // ""' "$images_json")
+    version=$(jq -r '.latest.armbian_version // ""' "$images_json")
 
     if [[ -z "$download_url" ]] || [[ "$download_url" == "null" ]]; then
         log_error "No download URL found in images.json"
@@ -184,9 +186,13 @@ if [[ "$INPUT" == "--latest" ]]; then
     echo "Size: $(du -h "$DOWNLOADED_FILE" | cut -f1)"
 
     # Verify checksum
-    if [[ "$VERIFY_CHECKSUM" == "true" ]] && [[ -n "$LATEST_SHA256" ]]; then
-        log_step "Verifying SHA256 checksum..."
-        echo "$LATEST_SHA256  $DOWNLOADED_FILE" | sha256sum -c
+    if [[ "$VERIFY_CHECKSUM" == "true" ]]; then
+        if [[ -n "$LATEST_SHA256" ]]; then
+            log_step "Verifying SHA256 checksum..."
+            echo "$LATEST_SHA256  $DOWNLOADED_FILE" | sha256sum -c
+        else
+            log_warn "images.json has no sha256 for this image; skipping verification"
+        fi
     fi
 
     # Decompress if requested
@@ -237,6 +243,8 @@ if [[ "$INPUT" == http* ]]; then
         echo "=== Download Complete ==="
         echo "File: $DOWNLOADED_FILE"
         echo "Size: $(du -h "$DOWNLOADED_FILE" | cut -f1)"
+        log_warn "Direct-URL downloads are not checksum-verified."
+        log_warn "Prefer --latest, which verifies the SHA256 from images.json."
 
         # Decompress if requested
         if [[ "$DECOMPRESS" == "true" ]]; then

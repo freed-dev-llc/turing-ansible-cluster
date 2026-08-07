@@ -41,6 +41,29 @@
     - portainer
 
   post_tasks:
+    # The prometheus_stack role deploys without waiting (its PVCs need the
+    # longhorn StorageClass, created by the later longhorn role), so confirm
+    # the monitoring stack actually converged before declaring success.
+    - name: Wait for monitoring deployments to become available
+      ansible.builtin.command: >
+        k3s kubectl wait --for=condition=Available deployment --all
+        -n monitoring --timeout=600s
+      register: addons_monitoring_deployments
+      changed_when: false
+      retries: 3
+      delay: 10
+      until: addons_monitoring_deployments.rc == 0
+
+    - name: Wait for Prometheus and Alertmanager statefulsets
+      ansible.builtin.command: >
+        k3s kubectl wait --for=jsonpath='{.status.availableReplicas}'=1
+        statefulset --all -n monitoring --timeout=600s
+      register: addons_monitoring_statefulsets
+      changed_when: false
+      retries: 3
+      delay: 10
+      until: addons_monitoring_statefulsets.rc == 0
+
     - name: Display addon status
       ansible.builtin.command: k3s kubectl get pods -A
       register: addons_all_pods
