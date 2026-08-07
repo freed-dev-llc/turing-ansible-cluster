@@ -61,4 +61,7 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          # Downgrades ansible-core 2.19's non-boolean `when:` error to a
+          # warning for the container test runs only; production playbook
+          # runs do not set this, so the strict check still applies there.
           ANSIBLE_ALLOW_BROKEN_CONDITIONALS: 'true'

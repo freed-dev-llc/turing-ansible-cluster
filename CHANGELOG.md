@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-08-07
+
+Fixes from an adversarial review of the whole repo (16 confirmed findings).
+
+### Security
+
+- GitHub Actions script injection closed in the Armbian build workflow: values derived from the upstream `armbian/build` VERSION file and build metadata now reach `run:` scripts via `env:` instead of inline `${{ }}` interpolation, the fetched version must match a version-shaped regex, and the fetches use `curl -f` (#45).
+- The k3s agent config at `/etc/rancher/k3s/config.yaml` embeds the cluster join token; it is now written `0600` instead of world-readable `0644` (#45).
+- `prepare-armbian-image.sh` no longer ships a hardcoded default root password: `ROOT_PASSWORD` is required, is not echoed to the terminal, and the first-boot autoconfig file carrying it is `0600` (#45).
+- Third-party actions running with write permissions or secret access are pinned to commit SHAs: `anchore/sbom-action` (v0.24.0), `softprops/action-gh-release` (v2.6.2), `docker/setup-qemu-action` (v3.7.0) (#45).
+
+### Added
+
+- k3s upgrades: bumping `k3s_version` now reinstalls the binary on provisioned nodes instead of failing the post-install version check (the installer was previously skipped whenever the binary existed) (#45).
+- `k3s_prereq` ships the previously missing `registries.yaml.j2`, so defining `private_registries` renders `/etc/rancher/k3s/registries.yaml` instead of failing with a template-not-found error (#45).
+- Dependabot covers the Terraform provider pin via a `terraform` ecosystem entry; the invalid `ansible` ecosystem entry, which invalidated the entire config file, is gone (#45).
+
+### Fixed
+
+- `recover-node.yml` reworked. Node selection moved from `--limit` (which skipped the control-plane cleanup/Longhorn/verify plays without error and, when omitted together with `force_reinstall`, targeted every worker at once) to a required, validated `-e recover_target=<node>` variable. `target_nodes` was previously always empty, so the stale-state cleanup and Longhorn recovery never did anything; they now operate on the selected nodes, and a cross-play guard aborts if the cleanup play was skipped. The stale-disk removal referenced `item.item.item` on a loop whose items only nest one level, so it crashed exactly when a disk needed cleanup; it now uses `item.item`, and an unused companion task is gone (#45).
+- `addons.yml` fresh-install deadlock: the Prometheus PVCs need Longhorn's StorageClass while Longhorn's ServiceMonitor needs Prometheus's CRDs, so the prometheus deploy no longer blocks (`wait: false`) and the play verifies monitoring readiness after all addons land (#45).
+- `kernel_modules` / `sysctl_settings` in group_vars renamed to `base_kernel_modules` / `base_sysctl_settings` so the base role actually applies them; previously the `dm_crypt` preload and the `fs.inotify.max_user_instances: 8192` override were silently discarded (#45).
+- The k3s agent role reads the join token from the control plane via delegation instead of relying on facts set by a same-run server play, so `--limit workers` and `recover-node.yml` no longer fail on an undefined variable (#45).
+- `download-armbian-image.sh` uses `curl -f` on all downloads (an HTTP error page can no longer be saved as the image) and warns when no checksum is available; `prepare-armbian-image.sh` preserves the image's original `resolv.conf` (the host's copy was previously baked into every prepared image) and its cross-arch QEMU detection actually fires (`grep -o` returned multi-line output that never matched the comparison) (#45).
+- The base role's `Reload sysctl` handler is gated for Molecule, matching the repo's rule that live systemd/kernel operations skip container runs; the pre-commit shellcheck hook covers `ansible/scripts/` (#45).
+
 ## [1.5.0] - 2026-06-23
 
 ### Added
@@ -406,7 +432,8 @@ The K3s version bump (v1.31.3 → v1.31.4+k3s1) is a patch-level upgrade and is 
 - Comprehensive installation guide (INSTALL.md)
 - Implementation documentation (docs/IMPLEMENTATION.md)
 
-[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.6...v1.4.0
 [1.3.6]: https://github.com/freed-dev-llc/turing-ansible-cluster/compare/v1.3.5...v1.3.6

@@ -28,8 +28,15 @@ jobs:
       - name: Check upstream VERSION
         id: check
         run: |
-          # Fetch current upstream VERSION from armbian/build
-          UPSTREAM_VERSION=$(curl -sL https://raw.githubusercontent.com/armbian/build/main/VERSION | tr -d '\n\r')
+          # Fetch current upstream VERSION from armbian/build (-f: fail on
+          # HTTP errors instead of capturing an error page as the version)
+          UPSTREAM_VERSION=$(curl -fsSL https://raw.githubusercontent.com/armbian/build/main/VERSION | tr -d '\n\r')
+          # This value is interpolated into later steps; accept only a
+          # version-shaped string so a bad response can't inject shell.
+          if ! printf '%s' "$UPSTREAM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+(\.[0-9]+)?(-[A-Za-z0-9.]+)?$'; then
+            echo "Unexpected upstream version format: $UPSTREAM_VERSION" >&2
+            exit 1
+          fi
           echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
           echo "Upstream Armbian version: $UPSTREAM_VERSION"
 
@@ -90,7 +97,7 @@ jobs:
           sudo apt-get install -y jq rclone
 
       - name: Set up QEMU for ARM64 cross-compilation
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
         with:
           platforms: arm64,arm
 
@@ -161,11 +168,16 @@ jobs:
           EOF
           rclone listremotes
 
+      # Derived values reach the shell via env, never inline ${{ }} in run
+      # bodies, so they cannot break out of the script as code.
       - name: Upload to Cloudflare R2
         id: upload
+        env:
+          VERSION: ${{ needs.check-version.outputs.upstream_version }}
+          FILENAME: ${{ steps.metadata.outputs.filename }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
         run: |
-          VERSION="${{ needs.check-version.outputs.upstream_version }}"
-          FILENAME="${{ steps.metadata.outputs.filename }}"
           IMAGE_FILE="armbian-build/output/images/$FILENAME"
           BUCKET="armbian-builds"
 
@@ -176,11 +188,10 @@ jobs:
           rclone copy "armbian-build/output/images/" "r2:${BUCKET}/turing-rk1/armbian/${VERSION}/" --include "*.sha" --include "*.txt" --progress
 
           # Construct public URL (requires R2 public access enabled)
-          R2_PUBLIC_URL="${{ secrets.R2_PUBLIC_URL }}"
           if [ -n "$R2_PUBLIC_URL" ]; then
             DOWNLOAD_URL="${R2_PUBLIC_URL}/turing-rk1/armbian/${VERSION}/${FILENAME}"
           else
-            DOWNLOAD_URL="${{ secrets.R2_ENDPOINT }}/armbian-builds/turing-rk1/armbian/${VERSION}/${FILENAME}"
+            DOWNLOAD_URL="${R2_ENDPOINT}/armbian-builds/turing-rk1/armbian/${VERSION}/${FILENAME}"
           fi
           echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
           echo "Uploaded to: $DOWNLOAD_URL"
@@ -190,10 +201,15 @@ jobs:
           rclone ls "r2:${BUCKET}/turing-rk1/armbian/${VERSION}/"
 
       - name: Update images.json
+        env:
+          VERSION: ${{ needs.check-version.outputs.upstream_version }}
+          KERNEL: ${{ steps.metadata.outputs.kernel }}
+          FILENAME: ${{ steps.metadata.outputs.filename }}
+          SIZE: ${{ steps.metadata.outputs.size }}
+          SHA256: ${{ steps.metadata.outputs.sha256 }}
+          DOWNLOAD_URL: ${{ steps.upload.outputs.download_url }}
         run: |
-          VERSION="${{ needs.check-version.outputs.upstream_version }}"
           DATE=$(date -u +%Y-%m-%d)
-          DOWNLOAD_URL="${{ steps.upload.outputs.download_url }}"
 
           # Initialize images.json if it doesn't exist
           if [ ! -f images.json ]; then
@@ -202,11 +218,11 @@ jobs:
 
           # Update images.json with new metadata
           jq --arg version "$VERSION" \
-             --arg kernel "${{ steps.metadata.outputs.kernel }}" \
+             --arg kernel "$KERNEL" \
              --arg date "$DATE" \
-             --arg filename "${{ steps.metadata.outputs.filename }}" \
-             --arg size "${{ steps.metadata.outputs.size }}" \
-             --arg sha256 "${{ steps.metadata.outputs.sha256 }}" \
+             --arg filename "$FILENAME" \
+             --arg size "$SIZE" \
+             --arg sha256 "$SHA256" \
              --arg download_url "$DOWNLOAD_URL" \
           '.latest = {
             armbian_version: $version,
@@ -228,16 +244,22 @@ jobs:
           cat images.json
 
       - name: Update unified images.json in R2
+        env:
+          VERSION: ${{ needs.check-version.outputs.upstream_version }}
+          KERNEL: ${{ steps.metadata.outputs.kernel }}
+          FILENAME: ${{ steps.metadata.outputs.filename }}
+          SIZE: ${{ steps.metadata.outputs.size }}
+          SHA256: ${{ steps.metadata.outputs.sha256 }}
+          DOWNLOAD_URL: ${{ steps.upload.outputs.download_url }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
         run: |
-          VERSION="${{ needs.check-version.outputs.upstream_version }}"
           DATE=$(date -u +%Y-%m-%d)
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          DOWNLOAD_URL="${{ steps.upload.outputs.download_url }}"
-          R2_PUBLIC_URL="${{ secrets.R2_PUBLIC_URL }}"
           BUCKET="armbian-builds"
 
-          # Download current unified images.json from R2
-          curl -sL "${R2_PUBLIC_URL}/turing-rk1/images.json" -o r2-images.json || echo '{}' > r2-images.json
+          # Download current unified images.json from R2 (-f: treat HTTP
+          # errors as a missing file rather than storing an error page)
+          curl -fsL "${R2_PUBLIC_URL}/turing-rk1/images.json" -o r2-images.json || echo '{}' > r2-images.json
 
           # Get previous version info for history
           PREV_VERSION=$(jq -r '.armbian.latest.version // ""' r2-images.json)
@@ -246,12 +268,12 @@ jobs:
 
           # Update the armbian section in unified images.json
           jq --arg version "$VERSION" \
-             --arg kernel "${{ steps.metadata.outputs.kernel }}" \
+             --arg kernel "$KERNEL" \
              --arg date "$DATE" \
              --arg timestamp "$TIMESTAMP" \
-             --arg filename "${{ steps.metadata.outputs.filename }}" \
-             --arg size "${{ steps.metadata.outputs.size }}" \
-             --arg sha256 "${{ steps.metadata.outputs.sha256 }}" \
+             --arg filename "$FILENAME" \
+             --arg size "$SIZE" \
+             --arg sha256 "$SHA256" \
              --arg download_url "$DOWNLOAD_URL" \
              --arg prev_version "$PREV_VERSION" \
              --arg prev_url "$PREV_URL" \
@@ -302,10 +324,11 @@ jobs:
           echo "Unified images.json uploaded to R2"
 
       - name: Prune old image versions in R2 (keep newest 3)
+        env:
+          LATEST: ${{ needs.check-version.outputs.upstream_version }}
         run: |
           BUCKET="armbian-builds"
           KEEP=3
-          LATEST="${{ needs.check-version.outputs.upstream_version }}"
           # Version dirs sort chronologically (Armbian uses YY.MM.x); keep the
           # newest $KEEP and purge the rest. Never delete the version just built.
           rclone lsf --dirs-only "r2:${BUCKET}/turing-rk1/armbian/" \
@@ -323,9 +346,11 @@ jobs:
           rclone lsf --dirs-only "r2:${BUCKET}/turing-rk1/armbian/"
 
       - name: Commit and push changes
+        env:
+          VERSION: ${{ needs.check-version.outputs.upstream_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add images.json
-          git diff --cached --quiet || git commit -m "Update Armbian image metadata for version ${{ needs.check-version.outputs.upstream_version }}"
+          git diff --cached --quiet || git commit -m "Update Armbian image metadata for version ${VERSION}"
           git push

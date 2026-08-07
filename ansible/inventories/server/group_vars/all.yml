@@ -19,15 +19,15 @@ base_packages:
   - nfs-common
   - cryptsetup
 
-# Kernel modules for K3s and Longhorn
-kernel_modules:
+# Kernel modules for K3s and Longhorn (consumed by the base role)
+base_kernel_modules:
   - br_netfilter
   - overlay
   - iscsi_tcp
   - dm_crypt
 
-# Sysctl settings
-sysctl_settings:
+# Sysctl settings (consumed by the base role)
+base_sysctl_settings:
   net.bridge.bridge-nf-call-iptables: 1
   net.bridge.bridge-nf-call-ip6tables: 1
   net.ipv4.ip_forward: 1

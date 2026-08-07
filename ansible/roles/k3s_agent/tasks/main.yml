@@ -1,13 +1,37 @@
 ---
-- name: Get server token from control plane
+# Read the join token straight from the control plane node so this role works
+# in any play (e.g. --limit workers or recover-node.yml) without depending on
+# facts set by an earlier k3s_server play in the same run.
+- name: Read k3s join token from control plane
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  delegate_to: "{{ groups['controlplane'][0] }}"
+  register: k3s_agent_node_token
+  no_log: true
+
+- name: Set k3s join facts
   ansible.builtin.set_fact:
-    k3s_agent_server_token: "{{ hostvars[groups['controlplane'][0]]['k3s_server_token'] }}"
-    k3s_agent_server_url: "{{ hostvars[groups['controlplane'][0]]['k3s_server_url'] }}"
+    k3s_agent_server_token: "{{ k3s_agent_node_token.content | b64decode | trim }}"
+    k3s_agent_server_url: "https://{{ hostvars[groups['controlplane'][0]]['ansible_host'] }}:6443"
+  no_log: true
 
 - name: Check if k3s-agent is already installed
   ansible.builtin.stat:
     path: /usr/local/bin/k3s
   register: k3s_agent_binary
+
+- name: Check installed k3s version
+  ansible.builtin.command: /usr/local/bin/k3s --version
+  register: k3s_agent_installed_version
+  changed_when: false
+  failed_when: false
+  when: k3s_agent_binary.stat.exists
+
+- name: Determine whether k3s install is needed
+  ansible.builtin.set_fact:
+    k3s_agent_install_needed: >-
+      {{ not k3s_agent_binary.stat.exists
+         or k3s_version not in (k3s_agent_installed_version.stdout | default('')) }}
 
 - name: Check if k3s-agent service exists
   ansible.builtin.stat:
@@ -26,11 +50,12 @@
     state: directory
     mode: "0700"
 
+# 0600: the config embeds the cluster join token
 - name: Create k3s agent config BEFORE installation
   ansible.builtin.template:
     src: config.yaml.j2
     dest: /etc/rancher/k3s/config.yaml
-    mode: "0644"
+    mode: "0600"
   notify: Restart k3s-agent
 
 - name: Download k3s install script
@@ -43,18 +68,19 @@
   until: k3s_agent_install_script is succeeded
   retries: 3
   delay: 5
-  when: not k3s_agent_binary.stat.exists
+  when: k3s_agent_install_needed | bool
 
 # Security: The install script verifies the k3s binary using SHA256 checksums
 # from GitHub releases. We verify the installed binary post-installation.
+# Also runs when k3s_version differs from the installed binary, upgrading it.
 - name: Install k3s agent
   environment:
     INSTALL_K3S_VERSION: "{{ k3s_version }}"
     K3S_URL: "{{ k3s_agent_server_url }}"
     K3S_TOKEN: "{{ k3s_agent_server_token }}"
   ansible.builtin.command: /tmp/k3s-install.sh agent
-  args:
-    creates: /usr/local/bin/k3s
+  changed_when: true
+  when: k3s_agent_install_needed | bool
 
 - name: Verify k3s binary version matches expected
   ansible.builtin.command: /usr/local/bin/k3s --version

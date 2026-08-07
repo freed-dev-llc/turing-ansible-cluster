@@ -14,7 +14,9 @@
 set -e
 
 # Configuration - Override via environment variables
-ROOT_PASSWORD="${ROOT_PASSWORD:-Turing@Rk1#2024}"
+# ROOT_PASSWORD is required: it is written into the image, so there is no
+# default (a fixed default would ship a publicly known root password).
+ROOT_PASSWORD="${ROOT_PASSWORD:-}"
 SSH_PUBKEY_FILE="${SSH_PUBKEY_FILE:-$HOME/.ssh/workbench.pub}"
 TIMEZONE="${TIMEZONE:-America/Chicago}"
 LOCALE="${LOCALE:-en_US.UTF-8}"
@@ -60,15 +62,14 @@ usage() {
     echo "  node_number         Optional: 1-4 for static IP and hostname config"
     echo ""
     echo "Environment variables:"
-    echo "  ROOT_PASSWORD       Root password (default: Turing@Rk1#2024)"
+    echo "  ROOT_PASSWORD       Root password (required, no default)"
     echo "  SSH_PUBKEY_FILE     Path to SSH public key (default: ~/.ssh/workbench.pub)"
     echo "  TIMEZONE            Timezone (default: America/Chicago)"
     echo "  SKIP_PACKAGES       Skip package installation (default: false)"
     echo ""
     echo "Examples:"
-    echo "  $0 Armbian.img                    # DHCP, inject SSH key + packages"
-    echo "  $0 Armbian.img 1                  # Static IP for node1"
-    echo "  SKIP_PACKAGES=true $0 Armbian.img # Skip package installation"
+    echo "  ROOT_PASSWORD='...' $0 Armbian.img    # DHCP, inject SSH key + packages"
+    echo "  ROOT_PASSWORD='...' $0 Armbian.img 1  # Static IP for node1"
     exit 1
 }
 
@@ -82,6 +83,12 @@ NODE_NUM="${2:-}"
 
 if [[ ! -f "$IMAGE" ]]; then
     echo "Error: Image file not found: $IMAGE"
+    exit 1
+fi
+
+if [[ -z "$ROOT_PASSWORD" ]]; then
+    echo "Error: ROOT_PASSWORD must be set; it becomes the image's root password."
+    echo "Example: ROOT_PASSWORD='...' $0 $IMAGE ${NODE_NUM:-1}"
     exit 1
 fi
 
@@ -168,10 +175,14 @@ if [[ "$SKIP_PACKAGES" != "true" ]]; then
     echo "=== Installing packages via chroot ==="
 
     # Check if we need QEMU for cross-architecture chroot
-    IMAGE_ARCH=$(file "$MOUNT_POINT/bin/bash" 2>/dev/null | grep -o 'ARM\|aarch64' || echo "unknown")
+    if file "$MOUNT_POINT/bin/bash" 2>/dev/null | grep -q 'ARM\|aarch64'; then
+        IMAGE_IS_ARM=true
+    else
+        IMAGE_IS_ARM=false
+    fi
     HOST_ARCH=$(uname -m)
 
-    if [[ "$IMAGE_ARCH" == "aarch64" || "$IMAGE_ARCH" == "ARM" ]] && [[ "$HOST_ARCH" == "x86_64" ]]; then
+    if [[ "$IMAGE_IS_ARM" == "true" ]] && [[ "$HOST_ARCH" == "x86_64" ]]; then
         # Check for QEMU user-mode emulation
         if [[ ! -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ]]; then
             echo "Warning: Cross-architecture chroot requires QEMU user-mode emulation"
@@ -196,8 +207,10 @@ if [[ "$SKIP_PACKAGES" != "true" ]]; then
     mount --bind /proc "$MOUNT_POINT/proc"
     mount --bind /sys "$MOUNT_POINT/sys"
 
-    # Copy resolv.conf for DNS resolution
-    cp /etc/resolv.conf "$MOUNT_POINT/etc/resolv.conf.bak" 2>/dev/null || true
+    # Preserve the image's own resolv.conf (often a symlink to
+    # systemd-resolved's stub), then use the host's for DNS in the chroot
+    cp -a "$MOUNT_POINT/etc/resolv.conf" "$MOUNT_POINT/etc/resolv.conf.bak" 2>/dev/null || true
+    rm -f "$MOUNT_POINT/etc/resolv.conf"
     cp /etc/resolv.conf "$MOUNT_POINT/etc/resolv.conf"
 
     # Install packages
@@ -217,8 +230,10 @@ if [[ "$SKIP_PACKAGES" != "true" ]]; then
     chroot "$MOUNT_POINT" apt-get clean
     chroot "$MOUNT_POINT" rm -rf /var/lib/apt/lists/*
 
-    # Restore resolv.conf
-    if [[ -f "$MOUNT_POINT/etc/resolv.conf.bak" ]]; then
+    # Restore the image's original resolv.conf (may be a dangling symlink
+    # inside the image, so test with -e and -L rather than -f)
+    if [[ -e "$MOUNT_POINT/etc/resolv.conf.bak" || -L "$MOUNT_POINT/etc/resolv.conf.bak" ]]; then
+        rm -f "$MOUNT_POINT/etc/resolv.conf"
         mv "$MOUNT_POINT/etc/resolv.conf.bak" "$MOUNT_POINT/etc/resolv.conf"
     fi
 
@@ -342,7 +357,8 @@ PRESET_NET_STATIC_DNS="${DNS}"
 EOF
 fi
 
-chmod 644 "$MOUNT_POINT/root/.not_logged_in_yet"
+# 0600: the autoconfig file carries the root password in plaintext
+chmod 600 "$MOUNT_POINT/root/.not_logged_in_yet"
 
 #
 # Sync and finish
@@ -358,7 +374,7 @@ echo "  Image prepared successfully!"
 echo "==========================================="
 echo ""
 echo "Configuration:"
-echo "  - Root password: ${ROOT_PASSWORD}"
+echo "  - Root password: (set from ROOT_PASSWORD env, not shown)"
 echo "  - SSH key: ${SSH_PUBKEY_FILE:-none}"
 echo "  - Timezone: ${TIMEZONE}"
 if [[ -n "$NODE_NUM" ]]; then

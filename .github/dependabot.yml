@@ -1,17 +1,8 @@
 version: 2
 updates:
-  # Ansible Galaxy collections
-  - package-ecosystem: "ansible"
-    directory: "/ansible"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "ansible"
-    labels:
-      - "dependencies"
-      - "ansible"
-
   # GitHub Actions
+  # (No entry for Ansible Galaxy: Dependabot has no ecosystem for it, and an
+  # unsupported value invalidates the whole file, disabling every entry.)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -21,3 +12,14 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+
+  # Terraform providers
+  - package-ecosystem: "terraform"
+    directory: "/terraform/environments/server"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "terraform"
+    labels:
+      - "dependencies"
+      - "terraform"

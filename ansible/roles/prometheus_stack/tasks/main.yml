@@ -20,6 +20,11 @@
         labels:
           pod-security.kubernetes.io/enforce: privileged
 
+# wait: false is deliberate. The PVCs here use the longhorn StorageClass,
+# which the longhorn role creates, but longhorn must deploy AFTER this chart
+# because its ServiceMonitor needs the CRDs this chart installs. Waiting here
+# would deadlock a fresh install; the PVCs bind once longhorn lands, and
+# addons.yml verifies monitoring readiness after all addons deploy.
 - name: Deploy kube-prometheus-stack
   kubernetes.core.helm:
     name: prometheus
@@ -28,8 +33,7 @@
     release_namespace: monitoring
     create_namespace: false
     values: "{{ lookup('template', playbook_dir + '/../templates/prometheus-values.yml.j2') | from_yaml }}"
-    wait: true
-    wait_timeout: 600s
+    wait: false
 
 - name: Create monitoring ingresses
   kubernetes.core.k8s:
