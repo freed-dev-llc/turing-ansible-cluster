@@ -16,7 +16,7 @@ driver:
 # workflow runs on the same runner host don't fight over one container;
 # locally the suffix is empty and the name stays base-test.
 platforms:
-  - name: base-test${MOLECULE_PLATFORM_SUFFIX:-}
+  - name: base-test${MOLECULE_PLATFORM_SUFFIX}
     image: geerlingguy/docker-debian12-ansible:latest
     command: ""
     privileged: true
@@ -39,9 +39,9 @@ provisioner:
     verify: verify.yml
   inventory:
     host_vars:
-      base-test${MOLECULE_PLATFORM_SUFFIX:-}:
-        ansible_host: base-test${MOLECULE_PLATFORM_SUFFIX:-}
-        inventory_hostname: base-test${MOLECULE_PLATFORM_SUFFIX:-}
+      base-test${MOLECULE_PLATFORM_SUFFIX}:
+        ansible_host: base-test${MOLECULE_PLATFORM_SUFFIX}
+        inventory_hostname: base-test${MOLECULE_PLATFORM_SUFFIX}
     group_vars:
       all:
         tpi_bmc_host: "10.10.88.70"
