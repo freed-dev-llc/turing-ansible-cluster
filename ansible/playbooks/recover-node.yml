@@ -237,33 +237,21 @@
       changed_when: false
       when: not (skip_longhorn | default(false))
 
-    - name: Get old disk names for cleanup
-      ansible.builtin.shell: |
-        set -o pipefail
-        k3s kubectl get nodes.longhorn.io -n longhorn-system {{ item.item }} \
-          -o jsonpath='{range .spec.disks.*}{@.path}|{end}' 2>/dev/null | tr '|' '\n' | head -1
-      args:
-        executable: /bin/bash
-      loop: "{{ recover_disk_status.results | default([]) }}"
-      register: recover_old_disks
-      when:
-        - not (skip_longhorn | default(false))
-        - item.stdout | default('') == 'needs_cleanup'
-      changed_when: false
-
+    # item comes from recover_disk_status.results, so item.item is the
+    # plain node name from the target_nodes loop above.
     - name: Remove stale Longhorn disks
       ansible.builtin.shell: |
         set -o pipefail
         # Get disk names and remove them
-        DISKS=$(k3s kubectl get nodes.longhorn.io -n longhorn-system {{ item.item.item }} \
+        DISKS=$(k3s kubectl get nodes.longhorn.io -n longhorn-system {{ item.item }} \
           -o jsonpath='{.spec.disks}' | jq -r 'keys[]')
         for disk in $DISKS; do
-          k3s kubectl patch nodes.longhorn.io -n longhorn-system {{ item.item.item }} \
+          k3s kubectl patch nodes.longhorn.io -n longhorn-system {{ item.item }} \
             --type=json \
             -p="[{\"op\": \"replace\", \"path\": \"/spec/disks/$disk/allowScheduling\", \"value\": false}]" \
             || true
           sleep 2
-          k3s kubectl patch nodes.longhorn.io -n longhorn-system {{ item.item.item }} \
+          k3s kubectl patch nodes.longhorn.io -n longhorn-system {{ item.item }} \
             --type=json \
             -p="[{\"op\": \"remove\", \"path\": \"/spec/disks/$disk\"}]" \
             || true
