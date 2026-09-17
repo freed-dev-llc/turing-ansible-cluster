@@ -27,7 +27,7 @@ jobs:
     if: >-
       github.event.pull_request.user.login == 'jfreed-dev' &&
       github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - name: Approve owner PR
         uses: actions/github-script@v9
