@@ -17,7 +17,7 @@ permissions:
 jobs:
   check-version:
     name: Check Upstream Version
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     outputs:
       build_needed: ${{ steps.check.outputs.build_needed }}
       upstream_version: ${{ steps.check.outputs.upstream_version }}

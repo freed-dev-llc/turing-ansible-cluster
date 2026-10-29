@@ -20,7 +20,7 @@ on:
 jobs:
   molecule:
     name: Molecule Tests
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
