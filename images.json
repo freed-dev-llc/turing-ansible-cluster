@@ -1,16 +1,21 @@
 {
   "latest": {
-    "armbian_version": "26.08.0-trunk",
-    "kernel_version": "6.1.115",
+    "armbian_version": "26.11.0-trunk",
+    "kernel_version": "6.1.172",
     "release": "bookworm",
     "branch": "vendor",
-    "build_date": "2026-06-06",
-    "filename": "Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img.xz",
-    "size_bytes": 491304440,
-    "sha256": "a57ace06395e86fd16500873772355ede4e9a019fead6852ac52394bec075a0c",
-    "download_url": "https://armbian-builds.techki.to/turing-rk1/armbian/26.08.0-trunk/Armbian-unofficial_26.08.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img.xz"
+    "build_date": "2026-10-30",
+    "filename": "Armbian-unofficial_26.11.0-trunk_Turing-rk1_bookworm_vendor_6.1.172.img.xz",
+    "size_bytes": 564997424,
+    "sha256": "c50520effe89679b46216fb9e03689a75e7af908db0ecb410f47bfcd82a47c3a",
+    "download_url": "https://armbian-builds.techki.to/turing-rk1/armbian/26.11.0-trunk/Armbian-unofficial_26.11.0-trunk_Turing-rk1_bookworm_vendor_6.1.172.img.xz"
   },
   "history": [
+    {
+      "armbian_version": "26.11.0-trunk",
+      "build_date": "2026-10-30",
+      "download_url": "https://armbian-builds.techki.to/turing-rk1/armbian/26.11.0-trunk/Armbian-unofficial_26.11.0-trunk_Turing-rk1_bookworm_vendor_6.1.172.img.xz"
+    },
     {
       "armbian_version": "26.08.0-trunk",
       "build_date": "2026-06-06",
@@ -20,11 +25,6 @@
       "armbian_version": "26.05.0-trunk",
       "build_date": "2026-05-18",
       "download_url": "https://armbian-builds.techki.to/turing-rk1/armbian/26.05.0-trunk/Armbian-unofficial_26.05.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img.xz"
-    },
-    {
-      "armbian_version": "26.02.0-trunk",
-      "build_date": "2025-12-26",
-      "download_url": "https://armbian-builds.techki.to/turing-rk1/armbian/26.02.0-trunk/Armbian-unofficial_26.02.0-trunk_Turing-rk1_bookworm_vendor_6.1.115.img.xz"
     }
   ],
   "build_config": {
