@@ -85,10 +85,14 @@ jobs:
 
       - name: Move Docker to larger partition
         run: |
-          sudo systemctl stop docker
+          # Docker uses the containerd image store on this runner image, so
+          # image layers live in /var/lib/containerd, not /var/lib/docker.
+          sudo systemctl stop docker docker.socket containerd
           sudo mv /var/lib/docker /build/docker
           sudo ln -s /build/docker /var/lib/docker
-          sudo systemctl start docker
+          sudo mv /var/lib/containerd /build/containerd
+          sudo ln -s /build/containerd /var/lib/containerd
+          sudo systemctl start containerd docker
           df -h
 
       - name: Install dependencies
